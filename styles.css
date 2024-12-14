@@ -13,6 +13,11 @@ body {
 
 #output {
   white-space: pre-wrap;
+  margin-bottom: 20px;
+}
+
+.output-line {
+  margin: 5px 0;
 }
 
 #input-line {
@@ -31,4 +36,9 @@ body {
   color: #00ff00;
   font-family: inherit;
   outline: none;
+}
+
+a {
+  color: #00ffff;
+  text-decoration: underline;
 }
