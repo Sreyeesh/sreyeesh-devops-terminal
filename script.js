@@ -1,45 +1,19 @@
-const terminalBody = document.getElementById('terminal-body');
-const terminalInput = document.getElementById('terminal-input');
-const prompt = document.getElementById('prompt');
+const terminalOutput = document.getElementById("output");
+const commandInput = document.getElementById("command-input");
 
-// Command definitions
 const commands = {
-    help: `Available commands:
-- help: Display this help message
-- ls: List directory contents
-- pwd: Show current directory
-- clear: Clear the terminal`,
-    ls: () => "home  about.txt  projects",
-    pwd: () => "/home/user",
-    clear: () => {
-        terminalBody.innerHTML = '';
-        return '';
-    }
+    about: "I am a passionate developer skilled in JavaScript, Python, and Linux systems.",
+    projects: "1. Portfolio Terminal\n2. E-commerce Site\n3. Open Source Contributions",
+    contact: "Email: yourname@example.com\nGitHub: github.com/yourprofile",
+    help: "Available commands: about, projects, contact, help",
 };
 
-// Function to execute user commands
-function executeCommand(input) {
-    const [command, ...args] = input.trim().split(' ');
-    let output;
-
-    if (commands[command]) {
-        output = typeof commands[command] === 'function' ? commands[command](args) : commands[command];
-    } else {
-        output = `Command not found: ${command}`;
-    }
-
-    if (command !== 'clear') {
-        terminalBody.innerHTML += `\n${prompt.textContent} ${input}\n${output}`;
-    }
-
-    terminalBody.scrollTop = terminalBody.scrollHeight; // Auto-scroll to the bottom
-}
-
-// Event listener for terminal input
-terminalInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        const input = terminalInput.value;
-        terminalInput.value = '';
-        executeCommand(input);
+commandInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        const input = commandInput.value.trim();
+        const response = commands[input] || `"${input}" is not a valid command. Type 'help' for a list of commands.`;
+        terminalOutput.innerHTML += `$ ${input}\n${response}\n\n`;
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        commandInput.value = "";
     }
 });

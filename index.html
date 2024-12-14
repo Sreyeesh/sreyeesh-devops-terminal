@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linux Terminal Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <title>Portfolio Terminal</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="terminal" id="terminal">
-        <div class="terminal-body" id="terminal-body">
-            <div>Welcome to my Linux Terminal Portfolio! Type "help" to see available commands.</div>
-        </div>
-        <div class="input-line">
-            <span class="prompt" id="prompt">user@linux:~$</span>
-            <input type="text" class="input" id="terminal-input" autofocus>
+    <div id="terminal">
+        <div id="output"></div>
+        <div id="input-line">
+            <span class="prompt">$</span>
+            <input type="text" id="command-input" autofocus>
         </div>
     </div>
-
-    <script src="script.js" defer></script>
+    <script src="script.js"></script>
 </body>
 </html>

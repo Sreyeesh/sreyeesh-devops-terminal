@@ -1,50 +1,34 @@
 body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    background-color: #000000; /* True black background for authenticity */
-    font-family: 'Source Code Pro', monospace;
-    color: #00ff00;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  margin: 0;
+  font-family: monospace;
+  background: #000;
+  color: #00ff00;
 }
 
-.terminal {
-    width: 100%;
-    height: 100%;
-    background-color: #000000; /* Matches the body background */
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+#terminal {
+  padding: 10px;
+  height: 100vh;
+  overflow-y: auto;
 }
 
-.terminal-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    white-space: pre-wrap;
-    font-size: 16px;
+#output {
+  white-space: pre-wrap;
 }
 
-.input-line {
-    display: flex;
-    padding: 10px;
-    background-color: #000000; /* Seamlessly blends with the terminal */
+#input-line {
+  display: flex;
+  align-items: center;
 }
 
 .prompt {
-    margin-right: 5px;
-    color: #ffcc00; /* Matches typical Linux terminal prompt */
-    font-size: 16px;
+  margin-right: 5px;
 }
 
-.input {
-    flex: 1;
-    border: none;
-    background: none;
-    color: #00ff00;
-    outline: none;
-    font-family: inherit;
-    font-size: 16px;
+#command-input {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  color: #00ff00;
+  font-family: inherit;
+  outline: none;
 }
