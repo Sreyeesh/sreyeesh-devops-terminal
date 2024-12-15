@@ -11,7 +11,7 @@ const commands = {
 
 // Fetch and render the Markdown resume
 async function fetchMarkdown(file) {
-    const url = `https://raw.githubusercontent.com/Sreyeesh/resume-templates/main/resumes/${file}`;
+    const url = `https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/${file}`;
     try {
         console.log(`Fetching: ${url}`); // Log the URL being fetched
         const response = await fetch(url);
