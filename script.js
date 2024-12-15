@@ -16,7 +16,7 @@ const commands = {
 async function fetchMarkdown(file) {
     const url = `https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/${file}`;
     try {
-        console.log(`Fetching: ${url}`); // Log the URL being fetched
+        console.log(`Fetching: ${url}`);
         const response = await fetch(url);
         if (!response.ok) throw new Error("File not found");
         return await response.text();
@@ -25,10 +25,10 @@ async function fetchMarkdown(file) {
     }
 }
 
-// Display the Markdown resume
+// Display Markdown resume
 async function displayMarkdownResume() {
-    const markdown = await fetchMarkdown("master-resume.md"); // Use the correct file name
-    return marked.parse(markdown); // Convert Markdown to HTML using Marked.js
+    const markdown = await fetchMarkdown("master-resume.md");
+    return marked.parse(markdown);
 }
 
 // Show help commands
@@ -46,21 +46,21 @@ Available commands:
 
 // Clear the terminal output
 function clearTerminal() {
-    terminalOutput.innerHTML = ""; // Clear all previous output
-    return ""; // Return an empty string to avoid displaying anything
+    terminalOutput.innerHTML = "";
+    return null;
 }
 
-// Display list of projects
+// Show projects
 function showProjects() {
     return `
 My Projects:
 1. **Portfolio Terminal** - A terminal-style portfolio website. [GitHub](https://github.com/Sreyeesh/portfolio-terminal)
 2. **ResumeForge** - A resume generator for developers. [GitHub](https://github.com/Sreyeesh/ResumeForge)
-3. **Task Manager** - A web-based task management tool. [Live Demo](https://example.com) | [GitHub](https://github.com/Sreyeesh/task-manager)
+3. **Task Manager** - A task management tool. [Live Demo](https://example.com)
     `;
 }
 
-// Display contact information
+// Show contact information
 function showContact() {
     return `
 Contact Me:
@@ -70,7 +70,7 @@ Contact Me:
     `;
 }
 
-// Display technical skills
+// Show technical skills
 function showSkills() {
     return `
 Technical Skills:
@@ -82,29 +82,51 @@ Technical Skills:
     `;
 }
 
-// Handle terminal input
-commandInput.addEventListener("keydown", async (e) => {
-  if (e.key === "Enter") {
-      const input = commandInput.value.trim();
+// Tab autocomplete for commands
+commandInput.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") {
+        e.preventDefault(); // Prevent default Tab behavior
 
-      // Special behavior for `clear` command
-      if (input === "clear") {
-          clearTerminal(); // Clear the terminal output
-          commandInput.value = ""; // Clear the input field
-          return; // Stop further processing
-      }
+        const input = commandInput.value.trim();
+        const availableCommands = Object.keys(commands);
 
-      // Process other commands
-      const response =
-          typeof commands[input] === "function"
-              ? await commands[input]()
-              : `"${input}" is not a valid command. Type 'help' for a list of commands."`;
+        // Filter commands that start with the current input
+        const matchingCommands = availableCommands.filter((cmd) =>
+            cmd.startsWith(input)
+        );
 
-      // Update terminal output
-      terminalOutput.innerHTML += `<div class="output-line">$ ${input}</div>`;
-      terminalOutput.innerHTML += `<div class="output-line">${response}</div><br>`;
-      terminalOutput.scrollTop = terminalOutput.scrollHeight; // Scroll to the bottom
-      commandInput.value = ""; // Clear input field
-  }
+        // If there's only one match, autocomplete the input
+        if (matchingCommands.length === 1) {
+            commandInput.value = matchingCommands[0];
+        }
+        // If multiple matches, show suggestions in the terminal
+        else if (matchingCommands.length > 1) {
+            terminalOutput.innerHTML += `<div class="output-line">${matchingCommands.join("  ")}</div>`;
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+    }
 });
 
+// Handle terminal input
+commandInput.addEventListener("keydown", async (e) => {
+    if (e.key === "Enter") {
+        const input = commandInput.value.trim();
+
+        if (input === "clear") {
+            clearTerminal();
+            commandInput.value = "";
+            return;
+        }
+
+        const response =
+            typeof commands[input] === "function"
+                ? await commands[input]()
+                : `"${input}" is not a valid command. Type 'help' for a list of commands."`;
+
+        // Update terminal output
+        terminalOutput.innerHTML += `<div class="output-line">$ ${input}</div>`;
+        terminalOutput.innerHTML += `<div class="output-line">${response}</div><br>`;
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        commandInput.value = ""; // Clear input field
+    }
+});
