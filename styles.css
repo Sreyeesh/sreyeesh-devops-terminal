@@ -20,6 +20,27 @@ body {
   margin: 5px 0;
 }
 
+.output-line.terminated {
+  color: #ff5555; /* Red for session termination */
+  font-style: italic;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.output-line.close-tab {
+  color: #ffaa00; /* Yellow for closing tab suggestion */
+  font-style: italic;
+}
+
+a {
+  color: #00ffff; /* Bright cyan for links */
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #55ffff; /* Lighter cyan on hover */
+  text-decoration: none;
+}
+
 #input-line {
   display: flex;
   align-items: center;
@@ -38,7 +59,7 @@ body {
   outline: none;
 }
 
-a {
-  color: #00ffff;
-  text-decoration: underline;
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }

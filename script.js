@@ -10,13 +10,17 @@ const commands = {
     projects: showProjects,
     contact: showContact,
     skills: showSkills,
+    exit: terminateSession, // Exit command
 };
+
+// Command history
+let commandHistory = [];
+let historyIndex = -1;
 
 // Fetch and render the Markdown resume
 async function fetchMarkdown(file) {
     const url = `https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/${file}`;
     try {
-        console.log(`Fetching: ${url}`);
         const response = await fetch(url);
         if (!response.ok) throw new Error("File not found");
         return await response.text();
@@ -40,6 +44,7 @@ Available commands:
 - projects: List my projects with descriptions.
 - contact: Display my contact information.
 - skills: Show my technical skills.
+- exit: Terminate the terminal session.
 - help: Show this help message.
     `;
 }
@@ -54,9 +59,12 @@ function clearTerminal() {
 function showProjects() {
     return `
 My Projects:
-1. **Portfolio Terminal** - A terminal-style portfolio website. [GitHub](https://github.com/Sreyeesh/portfolio-terminal)
-2. **ResumeForge** - A resume generator for developers. [GitHub](https://github.com/Sreyeesh/ResumeForge)
-3. **Task Manager** - A task management tool. [Live Demo](https://example.com)
+1. **Portfolio Terminal** - A terminal-style portfolio website. 
+   [GitHub](https://github.com/Sreyeesh/portfolio-terminal)
+2. **ResumeForge** - A resume generator for developers. 
+   [GitHub](https://github.com/Sreyeesh/ResumeForge)
+3. **Task Manager** - A task management tool. 
+   [Live Demo](https://example.com)
     `;
 }
 
@@ -82,35 +90,50 @@ Technical Skills:
     `;
 }
 
-// Tab autocomplete for commands
-commandInput.addEventListener("keydown", (e) => {
-    if (e.key === "Tab") {
-        e.preventDefault(); // Prevent default Tab behavior
+// Terminate the session
+function terminateSession() {
+    terminalOutput.innerHTML += `<div class="output-line">^D</div>`;
+    terminalOutput.innerHTML += `<div class="output-line terminated">Session terminated</div>`;
 
-        const input = commandInput.value.trim();
-        const availableCommands = Object.keys(commands);
+    // Attempt to close the tab
+    const isClosed = window.close();
 
-        // Filter commands that start with the current input
-        const matchingCommands = availableCommands.filter((cmd) =>
-            cmd.startsWith(input)
-        );
-
-        // If there's only one match, autocomplete the input
-        if (matchingCommands.length === 1) {
-            commandInput.value = matchingCommands[0];
-        }
-        // If multiple matches, show suggestions in the terminal
-        else if (matchingCommands.length > 1) {
-            terminalOutput.innerHTML += `<div class="output-line">${matchingCommands.join("  ")}</div>`;
-            terminalOutput.scrollTop = terminalOutput.scrollHeight;
-        }
+    if (!isClosed) {
+        // Fallback message if close fails
+        terminalOutput.innerHTML += `
+        <div class="output-line close-tab">
+            Press <strong>Ctrl + W</strong> to close this tab in Chrome.
+        </div>`;
     }
-});
 
-// Handle terminal input
+    commandInput.disabled = true; // Disable input
+    document.getElementById("input-line").style.display = "none"; // Hide input prompt
+}
+
+// Handle terminal input and keyboard shortcuts
 commandInput.addEventListener("keydown", async (e) => {
-    if (e.key === "Enter") {
+    if (e.ctrlKey && e.key === "d") {
+        e.preventDefault();
+        terminateSession();
+    } else if (e.ctrlKey && e.key === "l") {
+        e.preventDefault();
+        clearTerminal();
+    } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (historyIndex > 0) historyIndex--;
+        commandInput.value = commandHistory[historyIndex] || "";
+    } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (historyIndex < commandHistory.length - 1) historyIndex++;
+        else historyIndex = commandHistory.length;
+        commandInput.value = commandHistory[historyIndex] || "";
+    } else if (e.key === "Enter") {
         const input = commandInput.value.trim();
+
+        if (input) {
+            commandHistory.push(input);
+            historyIndex = commandHistory.length;
+        }
 
         if (input === "clear") {
             clearTerminal();
@@ -123,10 +146,9 @@ commandInput.addEventListener("keydown", async (e) => {
                 ? await commands[input]()
                 : `"${input}" is not a valid command. Type 'help' for a list of commands."`;
 
-        // Update terminal output
         terminalOutput.innerHTML += `<div class="output-line">$ ${input}</div>`;
         terminalOutput.innerHTML += `<div class="output-line">${response}</div><br>`;
         terminalOutput.scrollTop = terminalOutput.scrollHeight;
-        commandInput.value = ""; // Clear input field
+        commandInput.value = "";
     }
 });
