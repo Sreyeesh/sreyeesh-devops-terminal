@@ -1,6 +1,6 @@
 // DOM Elements
 const terminal = document.getElementById("terminal");
-const commands = ["help", "ls", "cat", "cv", "clear", "exit", "pwd"];
+const commands = ["help", "ls", "cat", "cv", "clear", "pwd"];
 const files = ["master-resume.md"];
 const prompt = `user@portfolio:~$`;
 
@@ -72,20 +72,6 @@ async function handleCommand(input) {
         case "clear":
             clearTerminal();
             break;
-        case "exit":
-            printLine("Session terminated. Goodbye!");
-            disableInput();
-            setTimeout(() => {
-                if (window.top === window.self) {
-                    // Attempt to close the tab
-                    if (!window.close()) {
-                        printLine("This tab cannot be closed automatically. Please close it manually.");
-                    }
-                } else {
-                    printLine("Please close this tab manually.");
-                }
-            }, 1000); // Delay for user to read the message
-            break;
         default:
             printLine(`bash: ${command}: command not found`);
             printLine(""); // Add spacing
@@ -142,7 +128,6 @@ function printHelp() {
 <tr><td>cv</td><td>View the resume (alias for 'cat master-resume.md').</td></tr>
 <tr><td>pwd</td><td>Show current directory.</td></tr>
 <tr><td>clear</td><td>Clear the terminal.</td></tr>
-<tr><td>exit</td><td>Exit the terminal session and attempt to close the tab.</td></tr>
 </table>`);
     printLine(""); // Add spacing
 }
@@ -150,10 +135,4 @@ function printHelp() {
 // Clear terminal
 function clearTerminal() {
     terminal.innerHTML = "";
-}
-
-// Disable input after exit
-function disableInput() {
-    const inputs = document.querySelectorAll(".command-input");
-    inputs.forEach((input) => (input.disabled = true));
 }
