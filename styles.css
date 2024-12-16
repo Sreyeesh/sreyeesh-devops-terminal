@@ -1,128 +1,68 @@
-/* General Styles */
+/* General body styling */
 body {
-  margin: 0;
-  font-family: monospace;
-  background: #000;
+  background-color: black;
   color: #00ff00;
+  font-family: monospace;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
+/* Terminal container */
 #terminal {
-  padding: 10px;
   height: 100vh;
   overflow-y: auto;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
-.output-line {
-  margin: 5px 0;
+/* Terminal output styling */
+#output {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-bottom: 10px;
 }
 
-.output-line.terminated {
-  color: #ff5555;
-  font-style: italic;
-  animation: fadeIn 1s ease-in-out;
-}
-
-.output-line.close-tab {
-  color: #ffaa00;
-  font-style: italic;
-}
-
-a {
-  color: #00ffff;
-  text-decoration: underline;
-}
-
-a:hover {
-  color: #55ffff;
-}
-
+/* Input line styling */
 #input-line {
   display: flex;
-  align-items: center;
 }
 
-.prompt {
+.input-prompt {
+  color: #00ff00;
   margin-right: 5px;
 }
 
 #command-input {
-  flex-grow: 1;
+  background: none;
   border: none;
-  background: transparent;
-  color: #00ff00;
-  font-family: inherit;
   outline: none;
-}
-
-/* Themes */
-
-/* Dark Theme */
-body.dark {
-  background-color: #000;
   color: #00ff00;
+  font-family: monospace;
+  width: 100%;
 }
 
-/* Light Theme */
-body.light {
-  background-color: #f4f4f4;
-  color: #222;
-}
-
-body.light .output-line,
-body.light #command-input {
-  color: #222;
-}
-
-body.light .prompt {
-  color: #555;
-}
-
-body.light a {
-  color: #0066cc;
-}
-
-body.light a:hover {
-  color: #004080;
-}
-
-/* Retro Theme */
-body.retro {
-  background-color: #002b36;
-  color: #00ff00;
-  font-family: "Courier New", Courier, monospace;
-}
-
-@keyframes fadeIn {
-  from {
-      opacity: 0;
-  }
-  to {
-      opacity: 1;
-  }
-}
-
-/* Help Command Styling */
+/* Styling for help command */
 .help-header {
   font-weight: bold;
-  color: #00ff00;
-  margin-bottom: 8px;
-  display: block;
+  margin-bottom: 10px;
 }
 
 .help-row {
   display: flex;
-  justify-content: flex-start;
-  align-items: baseline;
-  margin: 5px 0;
+  margin-bottom: 5px;
 }
 
 .help-command {
   color: #00ff00;
   font-weight: bold;
-  min-width: 10rem; /* Ensure alignment */
+  margin-right: 10px;
 }
 
 .help-description {
   color: #ffffff;
-  font-weight: normal;
+}
+
+.output-line {
+  margin-bottom: 5px;
 }
