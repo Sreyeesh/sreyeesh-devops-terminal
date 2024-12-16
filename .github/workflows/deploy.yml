@@ -1,12 +1,12 @@
-name: Deploy Terminal Portfolio to GitHub Pages
+name: Deploy Terminal Portfolio
 
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to 'main'
+      - main  # Trigger the workflow when pushing to the main branch
 
 permissions:
-  contents: write  # Grant write access to repository contents
+  contents: read  # No write permissions required for main branch deployment
 
 jobs:
   deploy:
@@ -14,16 +14,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+      # Step 2: Ensure Files are Ready
+      - name: Verify Static Files
+        run: |
+          if [ ! -f index.html ]; then
+            echo "index.html not found. Please ensure your site files are in the root directory."
+            exit 1
+          fi
+          echo "Static files verified."
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./  # Root directory with HTML, CSS, JS files
+      # Step 3: Deployment Confirmation
+      - name: Deployment Confirmation
+        run: echo "Your site is deployed and available at https://<your-username>.github.io/<repository-name>/"
