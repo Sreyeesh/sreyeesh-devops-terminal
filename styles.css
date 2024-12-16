@@ -1,128 +1,54 @@
-/* General Styles */
 body {
   margin: 0;
+  background-color: #000;
+  color: #33ff33;
   font-family: monospace;
-  background: #000;
-  color: #00ff00;
+  font-size: 16px;
+  overflow: hidden;
 }
 
 #terminal {
   padding: 10px;
   height: 100vh;
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
-.output-line {
-  margin: 5px 0;
-}
-
-.output-line.terminated {
-  color: #ff5555;
-  font-style: italic;
-  animation: fadeIn 1s ease-in-out;
-}
-
-.output-line.close-tab {
-  color: #ffaa00;
-  font-style: italic;
-}
-
-a {
-  color: #00ffff;
-  text-decoration: underline;
-}
-
-a:hover {
-  color: #55ffff;
-}
-
-#input-line {
+.input-line {
   display: flex;
   align-items: center;
 }
 
-.prompt {
+.input-prompt {
+  color: #33ff33;
+  font-weight: bold;
   margin-right: 5px;
 }
 
-#command-input {
-  flex-grow: 1;
-  border: none;
+.command-input {
   background: transparent;
-  color: #00ff00;
-  font-family: inherit;
+  border: none;
   outline: none;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  caret-color: #33ff33;
 }
 
-/* Themes */
-
-/* Dark Theme */
-body.dark {
-  background-color: #000;
-  color: #00ff00;
+table {
+  width: auto;
+  margin-top: 5px;
 }
 
-/* Light Theme */
-body.light {
-  background-color: #f4f4f4;
-  color: #222;
+table td {
+  padding-right: 10px;
 }
 
-body.light .output-line,
-body.light #command-input {
-  color: #222;
+a {
+  color: #00aaff;
+  text-decoration: underline;
 }
 
-body.light .prompt {
-  color: #555;
-}
-
-body.light a {
-  color: #0066cc;
-}
-
-body.light a:hover {
-  color: #004080;
-}
-
-/* Retro Theme */
-body.retro {
-  background-color: #002b36;
-  color: #00ff00;
-  font-family: "Courier New", Courier, monospace;
-}
-
-@keyframes fadeIn {
-  from {
-      opacity: 0;
-  }
-  to {
-      opacity: 1;
-  }
-}
-
-/* Help Command Styling */
-.help-header {
-  font-weight: bold;
-  color: #00ff00;
-  margin-bottom: 8px;
-  display: block;
-}
-
-.help-row {
-  display: flex;
-  justify-content: flex-start;
-  align-items: baseline;
-  margin: 5px 0;
-}
-
-.help-command {
-  color: #00ff00;
-  font-weight: bold;
-  min-width: 10rem; /* Ensure alignment */
-}
-
-.help-description {
-  color: #ffffff;
-  font-weight: normal;
+a:hover {
+  color: #66ccff;
 }
