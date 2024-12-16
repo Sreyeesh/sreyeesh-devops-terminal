@@ -78,7 +78,9 @@ async function handleCommand(input) {
             setTimeout(() => {
                 if (window.top === window.self) {
                     // Attempt to close the tab
-                    window.close();
+                    if (!window.close()) {
+                        printLine("This tab cannot be closed automatically. Please close it manually.");
+                    }
                 } else {
                     printLine("Please close this tab manually.");
                 }
