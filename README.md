@@ -1,4 +1,4 @@
-Here is the updated **README.md** with your live project link integrated:
+
 
 ---
 
@@ -84,10 +84,4 @@ You can access the live demo of the terminal portfolio here:
 
 ---
 
-## 📝 **License**
 
-This project is licensed under the MIT License.  
-
----
-
-Let me know if any additional details are needed! 🚀
