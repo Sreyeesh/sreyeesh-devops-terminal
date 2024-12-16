@@ -1,115 +1,125 @@
-// DOM Elements
-const terminal = document.getElementById("terminal");
-const prompt = `user@portfolio:~$`;
-const files = ["master-resume.md"];
-const fileURL = "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md";
-
-// Initialize Terminal
 document.addEventListener("DOMContentLoaded", () => {
-    printLine("Welcome to my Terminal Portfolio! Type <strong>help</strong> to get started.");
-    addNewInputLine();
-});
+  const terminal = document.getElementById("terminal");
+  const promptText = "user@portfolio:~$";
+  const masterResumeURL =
+    "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md";
+  const files = {
+    "master-resume.md": null, // Placeholder for the fetched resume content
+  };
 
-document.addEventListener("click", () => document.querySelector(".command-input").focus());
+  const commands = {
+    help: showHelp,
+    ls: listFiles,
+    cat: displayFile,
+    cv: () => displayFile("master-resume.md"),
+    clear: clearTerminal,
+  };
 
-document.addEventListener("keydown", async (e) => {
-    const inputField = document.activeElement;
-    if (!inputField.classList.contains("command-input")) return;
+  // Initialize terminal
+  initializeTerminal();
 
-    if (e.key === "Enter") {
-        const input = inputField.value.trim();
-        printLine(`${prompt} ${input}`);
-        await handleCommand(input);
-        inputField.disabled = true;
-        addNewInputLine();
-    } else if (e.key === "Tab") {
-        e.preventDefault();
-        handleTabCompletion(inputField);
+  function initializeTerminal() {
+    clearTerminal();
+    writeOutput(
+      "Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.\n"
+    );
+    renderPrompt();
+  }
+
+  // Display help
+  function showHelp() {
+    writeOutput(`
+Available Commands:
+help               Show available commands.
+ls                 List available files.
+cat <filename>     Display the content of a file.
+cv                 View the resume (alias for 'cat master-resume.md').
+clear              Clear the terminal.
+`);
+  }
+
+  // List files
+  function listFiles() {
+    writeOutput(Object.keys(files).join("\n"));
+  }
+
+  // Display file content
+  async function displayFile(filename) {
+    if (!filename) {
+      writeOutput("Usage: cat <filename>");
+      return;
     }
-});
 
-// Simplified Command List
-const commands = ["help", "ls", "cat", "cv", "clear"];
-
-// Command Handler
-async function handleCommand(input) {
-    const [command, ...args] = input.split(" ");
-    switch (command) {
-        case "help":
-            printHelp();
-            break;
-        case "ls":
-            printLine(files.join("<br>"));
-            break;
-        case "cat":
-            if (args[0] === "master-resume.md") {
-                await renderMarkdownFile();
-            } else {
-                printLine(`cat: ${args[0]}: No such file`);
-            }
-            break;
-        case "cv":
-            await renderMarkdownFile();
-            break;
-        case "clear":
-            clearTerminal();
-            break;
-        default:
-            printLine(`bash: ${command}: command not found`);
+    if (filename === "master-resume.md") {
+      if (!files[filename]) {
+        writeOutput("Fetching master-resume.md...");
+        try {
+          const response = await fetch(masterResumeURL);
+          if (!response.ok) throw new Error("Failed to fetch file.");
+          files[filename] = await response.text(); // Cache content
+        } catch (error) {
+          writeOutput(`Error: Could not fetch '${filename}'.`);
+          return;
+        }
+      }
+      writeOutput(marked.parse(files[filename])); // Render Markdown
+    } else {
+      writeOutput(`cat: ${filename}: No such file.`);
     }
-}
+  }
 
-// Render Full Markdown Resume
-async function renderMarkdownFile() {
-    try {
-        const response = await fetch(fileURL);
-        if (!response.ok) throw new Error("Failed to fetch the resume file.");
-        const markdown = await response.text();
-        printLine(marked.parse(markdown));
-    } catch (error) {
-        printLine(`Error: Could not load master-resume.md`);
-    }
-}
-
-// Add new input line
-function addNewInputLine() {
-    const inputLine = document.createElement("div");
-    inputLine.className = "input-line";
-    inputLine.innerHTML = `<span class="input-prompt">${prompt}</span><input type="text" class="command-input" autofocus autocomplete="off">`;
-    terminal.appendChild(inputLine);
-    terminal.scrollTop = terminal.scrollHeight;
-    inputLine.querySelector(".command-input").focus();
-}
-
-// Print Help
-function printHelp() {
-  printLine(`
-<strong>Available Commands:</strong><br>
-<table>
-<tr><td>help</td><td>Show available commands.</td></tr>
-<tr><td>ls</td><td>List files.</td></tr>
-<tr><td>cat &lt;filename&gt;</td><td>Display the content of a file.</td></tr>
-<tr><td>cv</td><td>View the resume (alias for 'cat master-resume.md').</td></tr>
-<tr><td>clear</td><td>Clear the terminal.</td></tr>
-</table>`);
-}
-
-// Print lines
-function printLine(content) {
-    const line = document.createElement("div");
-    line.innerHTML = content;
-    terminal.appendChild(line);
-    terminal.scrollTop = terminal.scrollHeight;
-}
-
-// Clear terminal
-function clearTerminal() {
+  // Clear the terminal
+  function clearTerminal() {
     terminal.innerHTML = "";
-}
+  }
 
-// Tab Autocomplete
-function handleTabCompletion(inputField) {
-    const input = inputField.value.trim();
-    const matches = commands.filter((cmd) => cmd.startsWith(input));
-    if (matches.length === 1) inputField.value = matches[0];
-}
+  // Write content to the terminal
+  function writeOutput(content) {
+    const outputLine = document.createElement("div");
+    outputLine.innerHTML = content;
+    terminal.appendChild(outputLine);
+    terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to bottom
+  }
+
+  // Render the prompt
+  function renderPrompt() {
+    const prompt = document.createElement("div");
+    prompt.classList.add("input-line");
+
+    const promptTextElement = document.createElement("span");
+    promptTextElement.classList.add("prompt");
+    promptTextElement.textContent = promptText;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.classList.add("command-input");
+    input.autofocus = true;
+
+    input.addEventListener("keydown", handleCommand);
+
+    prompt.appendChild(promptTextElement);
+    prompt.appendChild(input);
+    terminal.appendChild(prompt);
+    input.focus();
+  }
+
+  // Handle commands
+  function handleCommand(event) {
+    if (event.key === "Enter") {
+      const input = event.target.value.trim();
+      if (input === "") return;
+
+      writeOutput(`${promptText} ${input}`);
+      const [command, ...args] = input.split(" ");
+      event.target.disabled = true;
+
+      if (commands[command]) {
+        commands[command](args.join(" "));
+      } else {
+        writeOutput(`Error: '${command}' is not a valid command. Type 'help' for a list of commands.`);
+      }
+
+      renderPrompt();
+    }
+  }
+});

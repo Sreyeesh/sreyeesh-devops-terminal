@@ -1,6 +1,7 @@
 body {
   margin: 0;
-  background-color: #000;
+  padding: 10px;
+  background: black;
   color: #33ff33;
   font-family: monospace;
   font-size: 16px;
@@ -8,9 +9,9 @@ body {
 }
 
 #terminal {
-  padding: 10px;
   height: 100vh;
   overflow-y: auto;
+  white-space: pre-wrap;
   box-sizing: border-box;
 }
 
@@ -19,36 +20,28 @@ body {
   align-items: center;
 }
 
-.input-prompt {
+.prompt {
   color: #33ff33;
   font-weight: bold;
   margin-right: 5px;
 }
 
 .command-input {
+  flex: 1;
   background: transparent;
+  color: #33ff33;
   border: none;
   outline: none;
-  color: inherit;
-  font: inherit;
-  width: 100%;
+  font-family: monospace;
+  font-size: 16px;
   caret-color: #33ff33;
 }
 
-table {
-  width: auto;
-  margin-top: 5px;
-}
-
-table td {
-  padding-right: 10px;
-}
-
 a {
-  color: #00aaff;
-  text-decoration: underline;
+  color: #3399ff;
+  text-decoration: none;
 }
 
 a:hover {
-  color: #66ccff;
+  text-decoration: underline;
 }
