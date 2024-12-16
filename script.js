@@ -83,7 +83,7 @@ function addNewInputLine() {
 
 // Print Help
 function printHelp() {
-    printLine(`
+  printLine(`
 <strong>Available Commands:</strong><br>
 <table>
 <tr><td>help</td><td>Show available commands.</td></tr>
