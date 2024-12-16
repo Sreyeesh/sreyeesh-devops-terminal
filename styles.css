@@ -1,3 +1,4 @@
+/* General Styles */
 body {
   margin: 0;
   font-family: monospace;
@@ -11,34 +12,28 @@ body {
   overflow-y: auto;
 }
 
-#output {
-  white-space: pre-wrap;
-  margin-bottom: 20px;
-}
-
 .output-line {
   margin: 5px 0;
 }
 
 .output-line.terminated {
-  color: #ff5555; /* Red for session termination */
+  color: #ff5555;
   font-style: italic;
   animation: fadeIn 1s ease-in-out;
 }
 
 .output-line.close-tab {
-  color: #ffaa00; /* Yellow for closing tab suggestion */
+  color: #ffaa00;
   font-style: italic;
 }
 
 a {
-  color: #00ffff; /* Bright cyan for links */
+  color: #00ffff;
   text-decoration: underline;
 }
 
 a:hover {
-  color: #55ffff; /* Lighter cyan on hover */
-  text-decoration: none;
+  color: #55ffff;
 }
 
 #input-line {
@@ -59,7 +54,75 @@ a:hover {
   outline: none;
 }
 
+/* Themes */
+
+/* Dark Theme */
+body.dark {
+  background-color: #000;
+  color: #00ff00;
+}
+
+/* Light Theme */
+body.light {
+  background-color: #f4f4f4;
+  color: #222;
+}
+
+body.light .output-line,
+body.light #command-input {
+  color: #222;
+}
+
+body.light .prompt {
+  color: #555;
+}
+
+body.light a {
+  color: #0066cc;
+}
+
+body.light a:hover {
+  color: #004080;
+}
+
+/* Retro Theme */
+body.retro {
+  background-color: #002b36;
+  color: #00ff00;
+  font-family: "Courier New", Courier, monospace;
+}
+
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  from {
+      opacity: 0;
+  }
+  to {
+      opacity: 1;
+  }
+}
+
+/* Help Command Styling */
+.help-header {
+  font-weight: bold;
+  color: #00ff00;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.help-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  margin: 5px 0;
+}
+
+.help-command {
+  color: #00ff00;
+  font-weight: bold;
+  min-width: 10rem; /* Ensure alignment */
+}
+
+.help-description {
+  color: #ffffff;
+  font-weight: normal;
 }

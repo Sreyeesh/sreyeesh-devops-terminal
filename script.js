@@ -2,153 +2,209 @@
 const terminalOutput = document.getElementById("output");
 const commandInput = document.getElementById("command-input");
 
-// Commands object
+// Commands
 const commands = {
     help: showHelp,
-    resume: displayMarkdownResume,
     clear: clearTerminal,
-    projects: showProjects,
-    contact: showContact,
-    skills: showSkills,
-    exit: terminateSession, // Exit command
+    ls: ls,
+    cd: cd,
+    cat: cat,
+    github: fetchGitHubRepos,
+    resume: fetchMasterResume,
+    skills: () => fetchResumeSection("Skills"),
+    experience: () => fetchResumeSection("Experience"),
+    education: () => fetchResumeSection("Education"),
+    projects: () => fetchResumeSection("Projects"),
+    contact: () => fetchResumeSection("Contact"),
+    theme: changeTheme,
+    exit: terminateSession,
 };
 
 // Command history
 let commandHistory = [];
-let historyIndex = -1;
+let historyIndex = 0;
 
-// Fetch and render the Markdown resume
-async function fetchMarkdown(file) {
-    const url = `https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/${file}`;
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("File not found");
-        return await response.text();
-    } catch (error) {
-        return `Error fetching the resume. Ensure the file exists at: ${url}`;
-    }
-}
+// Fake File System
+const fileSystem = {
+    home: {
+        "resume.md": "This is your resume content. Add more details here.",
+        projects: {
+            "portfolio.md": "Portfolio Terminal Project: A terminal-style portfolio website.",
+            "resumeforge.md": "ResumeForge: A Markdown-based resume generator."
+        },
+    },
+};
 
-// Display Markdown resume
-async function displayMarkdownResume() {
-    const markdown = await fetchMarkdown("master-resume.md");
-    return marked.parse(markdown);
-}
+let currentDirectory = fileSystem.home;
 
-// Show help commands
+// Focus input and set default theme on page load
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.className = "dark"; // Default theme
+    terminalOutput.innerHTML += `
+Welcome to my Terminal Portfolio!
+Type <strong>help</strong> to get started. Key Commands: resume | skills | experience | education | projects | contact
+<br>
+`;
+    commandInput.focus();
+});
+
+document.addEventListener("click", () => commandInput.focus());
+
+// Command Implementations
 function showHelp() {
-    return `
-Available commands:
-- resume: Display the resume from the repository.
-- clear: Clear the terminal output.
-- projects: List my projects with descriptions.
-- contact: Display my contact information.
-- skills: Show my technical skills.
-- exit: Terminate the terminal session.
-- help: Show this help message.
-    `;
+  return `
+<span class="help-header">Available Commands:</span>
+
+<div class="help-row">
+  <span class="help-command">resume</span> 
+  <span class="help-description">View the full master resume.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">skills</span> 
+  <span class="help-description">View technical skills.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">experience</span> 
+  <span class="help-description">View professional experience.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">education</span> 
+  <span class="help-description">View educational background.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">projects</span> 
+  <span class="help-description">View key projects.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">contact</span> 
+  <span class="help-description">View contact information.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">github</span> 
+  <span class="help-description">Fetch my GitHub repositories.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">theme</span> 
+  <span class="help-description">Change the terminal theme. Usage: theme &lt;light|dark|retro&gt;</span>
+</div>
+<div class="help-row">
+  <span class="help-command">clear</span> 
+  <span class="help-description">Clear the terminal.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">exit</span> 
+  <span class="help-description">Terminate the session.</span>
+</div>
+<div class="help-row">
+  <span class="help-command">help</span> 
+  <span class="help-description">Show this help message.</span>
+</div>
+  `;
 }
 
-// Clear the terminal output
+
 function clearTerminal() {
     terminalOutput.innerHTML = "";
     return null;
 }
 
-// Show projects
-function showProjects() {
-    return `
-My Projects:
-1. **Portfolio Terminal** - A terminal-style portfolio website. 
-   [GitHub](https://github.com/Sreyeesh/portfolio-terminal)
-2. **ResumeForge** - A resume generator for developers. 
-   [GitHub](https://github.com/Sreyeesh/ResumeForge)
-3. **Task Manager** - A task management tool. 
-   [Live Demo](https://example.com)
-    `;
+function ls() {
+    return Object.keys(currentDirectory).join("  ");
 }
 
-// Show contact information
-function showContact() {
-    return `
-Contact Me:
-- Email: sreyeesh@example.com
-- GitHub: [github.com/Sreyeesh](https://github.com/Sreyeesh)
-- LinkedIn: [linkedin.com/in/sreyeesh](https://linkedin.com/in/sreyeesh)
-    `;
+function cd(args) {
+    const dir = args.split(" ")[1];
+    if (!dir) return "cd: Please specify a directory.";
+    if (dir === "..") {
+        currentDirectory = fileSystem.home;
+        return "Moved to home directory.";
+    }
+    if (currentDirectory[dir] && typeof currentDirectory[dir] === "object") {
+        currentDirectory = currentDirectory[dir];
+        return `Moved to ${dir}`;
+    }
+    return `cd: ${dir}: No such directory.`;
 }
 
-// Show technical skills
-function showSkills() {
-    return `
-Technical Skills:
-- **Programming Languages**: JavaScript, Python, C++
-- **Frontend**: HTML, CSS, React.js
-- **Backend**: Node.js, Express.js
-- **Tools**: Git, Docker, Linux
-- **Other**: Markdown, LaTeX, API Integration
-    `;
+function cat(args) {
+    const file = args.split(" ")[1];
+    if (!file) return "cat: Please specify a file.";
+    return currentDirectory[file] || `cat: ${file}: No such file.`;
 }
 
-// Terminate the session
+async function fetchGitHubRepos(args) {
+    const username = "Sreyeesh";
+    try {
+        const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=5`);
+        const repos = await response.json();
+        return repos.map((repo) => `- <a href="${repo.html_url}" target="_blank">${repo.name}</a>`).join("\n");
+    } catch (error) {
+        return "Error fetching GitHub repositories.";
+    }
+}
+
+async function fetchMasterResume() {
+    const fileURL = "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md";
+    try {
+        clearTerminal();
+        const response = await fetch(fileURL);
+        if (!response.ok) throw new Error("Error fetching the resume.");
+        const markdown = await response.text();
+        return `<div>${marked.parse(markdown)}</div>`;
+    } catch (error) {
+        return "Error: Could not fetch the master resume.";
+    }
+}
+
+async function fetchResumeSection(section) {
+    const fileURL = "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md";
+    try {
+        const response = await fetch(fileURL);
+        if (!response.ok) throw new Error("Error fetching the resume.");
+        const markdown = await response.text();
+        const sections = markdown.split(/(?=## )/);
+        const sectionContent = sections.find((s) => s.startsWith(`## ${section}`));
+        return sectionContent ? `<div>${marked.parse(sectionContent)}</div>` : `Section "${section}" not found.`;
+    } catch (error) {
+        return "Error: Could not fetch the master resume.";
+    }
+}
+
+function changeTheme(args) {
+    const theme = args.split(" ")[1];
+    if (["light", "dark", "retro"].includes(theme)) {
+        document.body.className = theme;
+        return `Theme changed to ${theme}.`;
+    }
+    return "Invalid theme. Available themes: light, dark, retro.";
+}
+
 function terminateSession() {
     terminalOutput.innerHTML += `<div class="output-line">^D</div>`;
-    terminalOutput.innerHTML += `<div class="output-line terminated">Session terminated</div>`;
-
-    // Attempt to close the tab
-    const isClosed = window.close();
-
-    if (!isClosed) {
-        // Fallback message if close fails
-        terminalOutput.innerHTML += `
-        <div class="output-line close-tab">
-            Press <strong>Ctrl + W</strong> to close this tab in Chrome.
-        </div>`;
-    }
-
-    commandInput.disabled = true; // Disable input
-    document.getElementById("input-line").style.display = "none"; // Hide input prompt
+    terminalOutput.innerHTML += `<div class="output-line terminated">Session terminated.</div>`;
+    commandInput.disabled = true;
+    document.getElementById("input-line").style.display = "none";
 }
 
-// Handle terminal input and keyboard shortcuts
+// Input Handling
 commandInput.addEventListener("keydown", async (e) => {
-    if (e.ctrlKey && e.key === "d") {
-        e.preventDefault();
-        terminateSession();
-    } else if (e.ctrlKey && e.key === "l") {
+    if (e.ctrlKey && e.key === "l") {
         e.preventDefault();
         clearTerminal();
-    } else if (e.key === "ArrowUp") {
+    } else if (e.ctrlKey && e.key === "d") {
         e.preventDefault();
-        if (historyIndex > 0) historyIndex--;
-        commandInput.value = commandHistory[historyIndex] || "";
-    } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (historyIndex < commandHistory.length - 1) historyIndex++;
-        else historyIndex = commandHistory.length;
-        commandInput.value = commandHistory[historyIndex] || "";
+        terminateSession();
     } else if (e.key === "Enter") {
         const input = commandInput.value.trim();
-
         if (input) {
             commandHistory.push(input);
             historyIndex = commandHistory.length;
+            const response = commands[input.split(" ")[0]]
+                ? await commands[input.split(" ")[0]](input)
+                : `"${input}" is not a valid command. Type 'help' for a list of commands.`;
+            terminalOutput.innerHTML += `<div class="output-line">$ ${input}</div><div class="output-line">${response || ""}</div><br>`;
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
         }
-
-        if (input === "clear") {
-            clearTerminal();
-            commandInput.value = "";
-            return;
-        }
-
-        const response =
-            typeof commands[input] === "function"
-                ? await commands[input]()
-                : `"${input}" is not a valid command. Type 'help' for a list of commands."`;
-
-        terminalOutput.innerHTML += `<div class="output-line">$ ${input}</div>`;
-        terminalOutput.innerHTML += `<div class="output-line">${response}</div><br>`;
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
         commandInput.value = "";
     }
 });
