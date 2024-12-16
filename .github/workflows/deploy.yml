@@ -1,0 +1,47 @@
+name: Deploy Terminal Portfolio to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow when changes are pushed to 'main'
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js (Optional, if you want to perform any builds)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Step 3: Install dependencies (if you have any build steps)
+      - name: Install Dependencies
+        run: |
+          if [ -f "package.json" ]; then
+            npm install
+          else
+            echo "No build dependencies found. Skipping..."
+          fi
+
+      # Step 4: Build the project (if applicable)
+      - name: Build Project
+        run: |
+          if [ -f "package.json" ]; then
+            npm run build
+          else
+            echo "No build step found. Skipping..."
+          fi
+
+      # Step 5: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./  # Root directory containing your HTML, CSS, and JS files
