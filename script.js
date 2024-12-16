@@ -45,42 +45,49 @@ function addNewInputLine() {
 
 // Handle commands
 async function handleCommand(input) {
-    const [command, ...args] = input.split(" ");
-    switch (command) {
-        case "help":
-            printHelp();
-            break;
-        case "ls":
-            printLine(files.join("<br>"));
-            printLine(""); // Add spacing
-            break;
-        case "cat":
-            if (args[0] === "master-resume.md") {
-                await renderMarkdownFile();
-            } else {
-                printLine(`cat: ${args[0]}: No such file`);
-                printLine(""); // Add spacing
-            }
-            break;
-        case "cv": // Alias for cat master-resume.md
-            await renderMarkdownFile();
-            break;
-        case "pwd":
-            printLine("/home/user");
-            printLine(""); // Add spacing
-            break;
-        case "clear":
-            clearTerminal();
-            break;
-        case "exit":
-            printLine("Session terminated. Goodbye!");
-            disableInput();
-            break;
-        default:
-            printLine(`bash: ${command}: command not found`);
-            printLine(""); // Add spacing
-    }
+  const [command, ...args] = input.split(" ");
+  switch (command) {
+      case "help":
+          printHelp();
+          break;
+      case "ls":
+          printLine(files.join("<br>"));
+          printLine(""); // Add spacing
+          break;
+      case "cat":
+          if (args[0] === "master-resume.md") {
+              await renderMarkdownFile();
+          } else {
+              printLine(`cat: ${args[0]}: No such file`);
+              printLine(""); // Add spacing
+          }
+          break;
+      case "cv": // Alias for cat master-resume.md
+          await renderMarkdownFile();
+          break;
+      case "pwd":
+          printLine("/home/user");
+          printLine(""); // Add spacing
+          break;
+      case "clear":
+          clearTerminal();
+          break;
+      case "exit":
+          printLine("Session terminated. Goodbye!");
+          disableInput();
+          setTimeout(() => {
+              if (window.top === window.self) {
+                  // Attempt to close the tab
+                  window.close();
+              }
+          }, 1000); // Add delay to allow the user to read the message
+          break;
+      default:
+          printLine(`bash: ${command}: command not found`);
+          printLine(""); // Add spacing
+  }
 }
+
 
 // Tab Autocomplete for Commands and Files
 function handleTabCompletion(inputField) {
