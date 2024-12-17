@@ -3,26 +3,44 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # Trigger workflow on push to main branch
 
 permissions:
-  contents: write
+  contents: write  # Ensures GITHUB_TOKEN has write permissions
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # Step 1: Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Setup Git
+      # Step 2: Set up Git user credentials
+      - name: Set up Git User
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions@github.com"
 
-      - name: Push to main
+      # Step 3: Build and Prepare (Optional, can be removed for plain HTML/CSS/JS)
+      - name: Build Project
+        run: echo "No build step needed for vanilla HTML/CSS/JS."
+
+      # Step 4: Commit and Push Changes to Main Branch (if any)
+      - name: Push Changes to Main Branch
         run: |
           git add .
-          git commit -m "Deploy updates"
-          git push origin main
+          if git diff --cached --exit-code; then
+            echo "No changes to commit. Skipping deployment."
+          else
+            git commit -m "Deploy updates to GitHub Pages"
+            git push origin main
+          fi
+
+      # Step 5: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
