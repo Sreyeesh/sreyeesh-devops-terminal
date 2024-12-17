@@ -1,28 +1,40 @@
-name: Deploy to GitHub Pages (Main Branch)
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches:
-      - main  # Trigger deployment on push to main
+      - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write  # <-- Ensures the GITHUB_TOKEN has the required permission
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          npm install || echo "No dependencies to install"
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      - name: Build project
-        run: npm run build || echo "No build step"
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm run build  # Include this step if your project requires a build process
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./  # Replace with the path to the static site content (e.g., 'build/', 'dist/')
 
       - name: Deploy to GitHub Pages
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: .  # Deploy everything from the root of main
-
-      - name: Publish Pages
+        id: deployment
         uses: actions/deploy-pages@v2
+
+      - name: Deployment Status
+        if: success()
+        run: echo "Deployment to GitHub Pages successful!"
