@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Prevent duplicate initialization
+  if (window.terminalInitialized) return;
+  window.terminalInitialized = true;
+
   const terminal = document.getElementById("terminal");
   const promptText = "user@portfolio:~$";
   const masterResumeURL =
@@ -21,9 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeTerminal();
 
   function initializeTerminal() {
-    clearTerminal();
+    terminal.innerHTML = ""; // Clear the terminal on load
     writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
-    renderPrompt();
+    renderPrompt(); // Ensure the prompt appears after the welcome message
   }
 
   function showHelp() {
@@ -71,11 +75,11 @@ clear              Clear the terminal.
   }
 
   function clearTerminal() {
-    terminal.innerHTML = ""; // Clear the terminal content
-    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands."); // Re-display welcome message
-    renderPrompt(); // Render the command prompt
+    terminal.innerHTML = ""; // Clear terminal content
+    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
+    renderPrompt(); // Ensure the prompt appears after the welcome message
   }
-  
+
   function writeOutput(content) {
     const outputLine = document.createElement("div");
     outputLine.innerHTML = content;
@@ -84,6 +88,10 @@ clear              Clear the terminal.
   }
 
   function renderPrompt() {
+    // Prevent duplicate prompts by removing any previous input element
+    const existingInputs = document.querySelectorAll(".command-input");
+    existingInputs.forEach((input) => input.remove());
+
     const promptLine = document.createElement("div");
     promptLine.classList.add("input-line");
 
