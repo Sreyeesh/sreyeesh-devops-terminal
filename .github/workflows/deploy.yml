@@ -1,40 +1,19 @@
-name: Deploy to GitHub Pages
+name: Deploy Terminal Portfolio
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write  # <-- Ensures the GITHUB_TOKEN has the required permission
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Install Dependencies
-        run: |
-          npm install
-          npm run build  # Include this step if your project requires a build process
-
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./  # Replace with the path to the static site content (e.g., 'build/', 'dist/')
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
-
-      - name: Deployment Status
-        if: success()
-        run: echo "Deployment to GitHub Pages successful!"
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
