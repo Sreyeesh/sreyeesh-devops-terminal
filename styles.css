@@ -1,71 +1,130 @@
-/* General body and terminal styling */
+/* General Terminal Styling */
 body {
   margin: 0;
-  padding: 10px;
-  background: black;
-  color: #33ff33;
+  padding: 0;
+  background-color: black;
+  color: white;
   font-family: monospace;
-  font-size: 16px;
-  overflow: hidden;
 }
 
 #terminal {
+  width: 100%;
   height: 100vh;
-  box-sizing: border-box;
   overflow-y: auto;
   white-space: pre-wrap;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
+/* Input Line Styling */
 .input-line {
   display: flex;
   align-items: center;
 }
 
-.prompt {
-  font-weight: bold;
+.input-line span {
+  color: #00ff00; /* Green for the prompt */
   margin-right: 5px;
-  color: #33ff33;
 }
 
 .command-input {
   background: transparent;
   border: none;
-  outline: none;
-  color: #33ff33;
-  caret-color: #33ff33;
+  color: white;
   font-family: monospace;
-  font-size: 16px;
+  outline: none;
   width: 100%;
 }
 
-/* Links styling */
-a {
-  color: #3399ff; /* Light blue for links */
-  text-decoration: none; /* Remove underline for clean look */
+/* Help Menu Styling */
+.help-container {
+  font-family: monospace;
+  margin-top: 10px;
+}
+
+.help-header, .help-row {
+  display: grid;
+  grid-template-columns: 20% 80%; /* Align columns for commands and descriptions */
+  line-height: 1.5;
+}
+
+.help-header {
+  font-weight: bold;
+  color: #00ff00; /* Green for header text */
+}
+
+.help-row .help-command {
+  color: #00ff00; /* Green for command text */
   font-weight: bold;
 }
 
-a:hover {
-  text-decoration: underline; /* Add underline on hover for better UX */
-  color: #66ccff; /* Lighter blue for hover state */
+.help-row .help-description {
+  color: #ffffff; /* White for descriptions */
 }
 
-/* Markdown-styled headers and text */
-h1, h2, h3, h4, h5, h6 {
-  color: #33ff33; /* Terminal green for headers */
+.help-divider {
+  border: none;
+  border-top: 1px solid #444; /* Grey line divider */
+  margin: 5px 0;
+}
+
+/* Markdown Output Styling */
+.markdown-output {
+  color: white;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+.markdown-output h1, 
+.markdown-output h2 {
+  color: #00ff00; /* Green for headings */
   margin: 10px 0;
 }
 
-p {
-  margin: 5px 0;
-  color: #33ff33; /* Text remains terminal green */
+.markdown-output p {
+  margin: 0 0 10px;
 }
 
-/* File output styling */
-pre {
-  background: #101010; /* Darker background for preformatted blocks */
-  padding: 5px;
-  border-radius: 4px;
-  color: #33ff33;
+.markdown-output a {
+  color: #00aaff; /* Bright blue for links */
+  text-decoration: underline;
+}
+
+.markdown-output a:hover {
+  color: #0088cc; /* Slightly darker blue on hover */
+}
+
+.markdown-output ul, 
+.markdown-output ol {
+  margin-left: 20px;
+}
+
+.markdown-output li {
+  margin-bottom: 5px;
+}
+
+.markdown-output pre {
+  background-color: #222;
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
   overflow-x: auto;
+}
+
+/* Scrollbar Styling for Terminal */
+#terminal::-webkit-scrollbar {
+  width: 8px;
+}
+
+#terminal::-webkit-scrollbar-track {
+  background: #222;
+}
+
+#terminal::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+#terminal::-webkit-scrollbar-thumb:hover {
+  background: #888;
 }

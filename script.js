@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Prevent duplicate initialization
   if (window.terminalInitialized) return;
   window.terminalInitialized = true;
 
@@ -7,8 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const promptText = "user@portfolio:~$";
   const masterResumeURL =
     "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md";
+
   const files = {
-    "master-resume.md": null, // Placeholder for fetched resume content
+    "master-resume.md": null,
   };
 
   const commands = {
@@ -20,27 +20,74 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let inputElement;
+  let commandHistory = [];
+  let historyIndex = -1;
 
-  // Initialize terminal
   initializeTerminal();
 
   function initializeTerminal() {
-    terminal.innerHTML = ""; // Clear the terminal on load
+    terminal.innerHTML = "";
     writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
-    renderPrompt(); // Ensure the prompt appears after the welcome message
+    renderPrompt();
   }
 
   function showHelp() {
-    writeOutput(`
-Available Commands:
-help               Show available commands.
-ls                 List available files.
-cat <filename>     Display the content of a file.
-cv                 View the resume (alias for 'cat master-resume.md').
-clear              Clear the terminal.
-`);
+    const helpHTML = `
+      <div class="help-container">
+        <div class="help-header">
+          <span class="help-command">Command</span>
+          <span class="help-description">Description</span>
+        </div>
+        <hr class="help-divider"/>
+        <div class="help-row">
+          <span class="help-command">help</span>
+          <span class="help-description">Show available commands.</span>
+        </div>
+        <div class="help-row">
+          <span class="help-command">ls</span>
+          <span class="help-description">List available files.</span>
+        </div>
+        <div class="help-row">
+          <span class="help-command">cat &lt;filename&gt;</span>
+          <span class="help-description">Display the content of a file.</span>
+        </div>
+        <div class="help-row">
+          <span class="help-command">cv</span>
+          <span class="help-description">View the resume (rendered in Markdown).</span>
+        </div>
+        <div class="help-row">
+          <span class="help-command">clear</span>
+          <span class="help-description">Clear the terminal.</span>
+        </div>
+        <hr class="help-divider"/>
+        <div class="help-header">
+          <span class="help-command">Shortcut</span>
+          <span class="help-description">Description</span>
+        </div>
+        <hr class="help-divider"/>
+        <div class="help-row">
+          <span class="help-command">Ctrl + C</span>
+          <span class="help-description">Cancel current input and reset the prompt.</span>
+        </div>
+        <div class="help-row">
+          <span class="help-command">Ctrl + L</span>
+          <span class="help-description">Clear the terminal screen.</span>
+        </div>
+        <div class="help-row">
+          <span class="help-command">Arrow Up/Down</span>
+          <span class="help-description">Navigate through command history.</span>
+        </div>
+        <div class="help-row">
+          <span class="help-command">Tab</span>
+          <span class="help-description">Auto-complete commands or file names.</span>
+        </div>
+      </div>
+    `;
+  
+    writeOutput(helpHTML);
     renderPrompt();
   }
+  
 
   function listFiles() {
     writeOutput(Object.keys(files).join("\n"));
@@ -67,7 +114,7 @@ clear              Clear the terminal.
           return;
         }
       }
-      writeOutput(marked.parse(files[filename]));
+      writeOutput(`<div class="markdown-output">${marked.parse(files[filename])}</div>`);
     } else {
       writeOutput(`cat: ${filename}: No such file.`);
     }
@@ -75,20 +122,19 @@ clear              Clear the terminal.
   }
 
   function clearTerminal() {
-    terminal.innerHTML = ""; // Clear terminal content
+    terminal.innerHTML = "";
     writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
-    renderPrompt(); // Ensure the prompt appears after the welcome message
+    renderPrompt();
   }
 
   function writeOutput(content) {
     const outputLine = document.createElement("div");
     outputLine.innerHTML = content;
     terminal.appendChild(outputLine);
-    terminal.scrollTop = terminal.scrollHeight; // Auto-scroll
+    terminal.scrollTop = terminal.scrollHeight;
   }
 
   function renderPrompt() {
-    // Prevent duplicate prompts by removing any previous input element
     const existingInputs = document.querySelectorAll(".command-input");
     existingInputs.forEach((input) => input.remove());
 
@@ -96,7 +142,6 @@ clear              Clear the terminal.
     promptLine.classList.add("input-line");
 
     const promptTextElement = document.createElement("span");
-    promptTextElement.classList.add("prompt");
     promptTextElement.textContent = promptText;
 
     inputElement = document.createElement("input");
@@ -106,6 +151,7 @@ clear              Clear the terminal.
 
     inputElement.addEventListener("keydown", handleCommand);
     inputElement.addEventListener("keydown", handleTabCompletion);
+    inputElement.addEventListener("keydown", handleShortcuts);
 
     promptLine.appendChild(promptTextElement);
     promptLine.appendChild(inputElement);
@@ -121,6 +167,9 @@ clear              Clear the terminal.
       if (input === "") return;
 
       writeOutput(`${promptText} ${input}`);
+      commandHistory.push(input);
+      historyIndex = commandHistory.length;
+
       const [command, ...args] = input.split(" ");
       event.target.disabled = true;
 
@@ -141,14 +190,11 @@ clear              Clear the terminal.
       const currentInput = words[words.length - 1];
 
       let suggestions = [];
-
       if (words.length === 1) {
-        // Suggest commands
         suggestions = Object.keys(commands).filter((cmd) =>
           cmd.startsWith(currentInput)
         );
       } else {
-        // Suggest files
         suggestions = Object.keys(files).filter((file) =>
           file.startsWith(currentInput)
         );
@@ -160,6 +206,33 @@ clear              Clear the terminal.
       } else if (suggestions.length > 1) {
         writeOutput(suggestions.join(" "));
         renderPrompt();
+      }
+    }
+  }
+
+  function handleShortcuts(event) {
+    if (event.ctrlKey && event.key === "c") {
+      // Ctrl+C: Cancel current input
+      inputElement.value = "";
+      writeOutput(`^C`);
+      renderPrompt();
+    } else if (event.ctrlKey && event.key === "l") {
+      // Ctrl+L: Clear terminal
+      clearTerminal();
+    } else if (event.key === "ArrowUp") {
+      // Arrow Up: Show previous command
+      if (historyIndex > 0) {
+        historyIndex--;
+        inputElement.value = commandHistory[historyIndex];
+      }
+    } else if (event.key === "ArrowDown") {
+      // Arrow Down: Show next command
+      if (historyIndex < commandHistory.length - 1) {
+        historyIndex++;
+        inputElement.value = commandHistory[historyIndex];
+      } else {
+        inputElement.value = "";
+        historyIndex = commandHistory.length;
       }
     }
   }
