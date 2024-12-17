@@ -6,7 +6,6 @@ on:
       - main  # Trigger workflow on push to main branch
 
 permissions:
-  contents: read  # No write permissions required for main branch deployment
   contents: write
   pages: write
   id-token: write  # Required for GitHub Pages deployment via Actions
@@ -16,23 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Ensure Files are Ready
-      - name: Verify Static Files
-        run: |
-          if [ ! -f index.html ]; then
-            echo "index.html not found. Please ensure your site files are in the root directory."
-            exit 1
-          fi
-          echo "Static files verified."
-
-      # Step 3: Deployment Confirmation
-      - name: Deployment Confirmation
-        run: echo "Your site is deployed and available at https://<your-username>.github.io/<repository-name>/"
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v3
 
       - name: Upload Files for Deployment
