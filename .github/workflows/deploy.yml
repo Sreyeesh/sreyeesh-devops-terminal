@@ -3,12 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Trigger workflow on push to main branch
+      - 1-outdated-commands-still-appear-in-help-menu # Trigger workflow on this branch
 
 permissions:
   contents: write
   pages: write
-  id-token: write  # Required for GitHub Pages deployment via Actions
+  id-token: write
 
 jobs:
   deploy:
@@ -18,13 +18,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup GitHub Pages
+      - name: Setup Pages
         uses: actions/configure-pages@v3
 
-      - name: Upload Files for Deployment
+      - name: Upload Site Content
         uses: actions/upload-pages-artifact@v2
         with:
-          path: .  # Deploy everything from the root directory
+          path: .  # Upload all files from the root directory
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v2
+
+      - name: Confirm Deployment
+        if: success()
+        run: echo "✅ Deployment successful! Site deployed from '1-outdated-commands-still-appear-in-help-menu'."
