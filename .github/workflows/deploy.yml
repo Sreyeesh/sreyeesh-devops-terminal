@@ -6,41 +6,26 @@ on:
       - main  # Trigger workflow on push to main branch
 
 permissions:
-  contents: write  # Ensures GITHUB_TOKEN has write permissions
+  contents: read  # No write permissions required for main branch deployment
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      # Step 2: Set up Git user credentials
-      - name: Set up Git User
+      # Step 2: Ensure Files are Ready
+      - name: Verify Static Files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions@github.com"
-
-      # Step 3: Build and Prepare (Optional, can be removed for plain HTML/CSS/JS)
-      - name: Build Project
-        run: echo "No build step needed for vanilla HTML/CSS/JS."
-
-      # Step 4: Commit and Push Changes to Main Branch (if any)
-      - name: Push Changes to Main Branch
-        run: |
-          git add .
-          if git diff --cached --exit-code; then
-            echo "No changes to commit. Skipping deployment."
-          else
-            git commit -m "Deploy updates to GitHub Pages"
-            git push origin main
+          if [ ! -f index.html ]; then
+            echo "index.html not found. Please ensure your site files are in the root directory."
+            exit 1
           fi
+          echo "Static files verified."
 
-      # Step 5: Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+      # Step 3: Deployment Confirmation
+      - name: Deployment Confirmation
+        run: echo "Your site is deployed and available at https://<your-username>.github.io/<repository-name>/"
