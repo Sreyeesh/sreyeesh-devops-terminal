@@ -1,3 +1,4 @@
+/* General body and terminal styling */
 body {
   margin: 0;
   padding: 10px;
@@ -10,9 +11,9 @@ body {
 
 #terminal {
   height: 100vh;
+  box-sizing: border-box;
   overflow-y: auto;
   white-space: pre-wrap;
-  box-sizing: border-box;
 }
 
 .input-line {
@@ -21,27 +22,50 @@ body {
 }
 
 .prompt {
-  color: #33ff33;
   font-weight: bold;
   margin-right: 5px;
+  color: #33ff33;
 }
 
 .command-input {
-  flex: 1;
   background: transparent;
-  color: #33ff33;
   border: none;
   outline: none;
+  color: #33ff33;
+  caret-color: #33ff33;
   font-family: monospace;
   font-size: 16px;
-  caret-color: #33ff33;
+  width: 100%;
 }
 
+/* Links styling */
 a {
-  color: #3399ff;
-  text-decoration: none;
+  color: #3399ff; /* Light blue for links */
+  text-decoration: none; /* Remove underline for clean look */
+  font-weight: bold;
 }
 
 a:hover {
-  text-decoration: underline;
+  text-decoration: underline; /* Add underline on hover for better UX */
+  color: #66ccff; /* Lighter blue for hover state */
+}
+
+/* Markdown-styled headers and text */
+h1, h2, h3, h4, h5, h6 {
+  color: #33ff33; /* Terminal green for headers */
+  margin: 10px 0;
+}
+
+p {
+  margin: 5px 0;
+  color: #33ff33; /* Text remains terminal green */
+}
+
+/* File output styling */
+pre {
+  background: #101010; /* Darker background for preformatted blocks */
+  padding: 5px;
+  border-radius: 4px;
+  color: #33ff33;
+  overflow-x: auto;
 }

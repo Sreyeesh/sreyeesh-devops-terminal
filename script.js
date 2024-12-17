@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const masterResumeURL =
     "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md";
   const files = {
-    "master-resume.md": null, // Placeholder for the fetched resume content
+    "master-resume.md": null, // Placeholder for fetched resume content
   };
 
   const commands = {
@@ -15,18 +15,17 @@ document.addEventListener("DOMContentLoaded", () => {
     clear: clearTerminal,
   };
 
+  let inputElement;
+
   // Initialize terminal
   initializeTerminal();
 
   function initializeTerminal() {
     clearTerminal();
-    writeOutput(
-      "Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.\n"
-    );
+    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
     renderPrompt();
   }
 
-  // Display help
   function showHelp() {
     writeOutput(`
 Available Commands:
@@ -36,74 +35,76 @@ cat <filename>     Display the content of a file.
 cv                 View the resume (alias for 'cat master-resume.md').
 clear              Clear the terminal.
 `);
+    renderPrompt();
   }
 
-  // List files
   function listFiles() {
     writeOutput(Object.keys(files).join("\n"));
+    renderPrompt();
   }
 
-  // Display file content
   async function displayFile(filename) {
     if (!filename) {
       writeOutput("Usage: cat <filename>");
+      renderPrompt();
       return;
     }
 
-    if (filename === "master-resume.md") {
+    if (filename in files) {
       if (!files[filename]) {
-        writeOutput("Fetching master-resume.md...");
+        writeOutput(`Fetching ${filename}...`);
         try {
           const response = await fetch(masterResumeURL);
           if (!response.ok) throw new Error("Failed to fetch file.");
-          files[filename] = await response.text(); // Cache content
+          files[filename] = await response.text();
         } catch (error) {
           writeOutput(`Error: Could not fetch '${filename}'.`);
+          renderPrompt();
           return;
         }
       }
-      writeOutput(marked.parse(files[filename])); // Render Markdown
+      writeOutput(marked.parse(files[filename]));
     } else {
       writeOutput(`cat: ${filename}: No such file.`);
     }
+    renderPrompt();
   }
 
-  // Clear the terminal
   function clearTerminal() {
     terminal.innerHTML = "";
   }
 
-  // Write content to the terminal
   function writeOutput(content) {
     const outputLine = document.createElement("div");
     outputLine.innerHTML = content;
     terminal.appendChild(outputLine);
-    terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to bottom
+    terminal.scrollTop = terminal.scrollHeight; // Auto-scroll
   }
 
-  // Render the prompt
   function renderPrompt() {
-    const prompt = document.createElement("div");
-    prompt.classList.add("input-line");
+    const promptLine = document.createElement("div");
+    promptLine.classList.add("input-line");
 
     const promptTextElement = document.createElement("span");
     promptTextElement.classList.add("prompt");
     promptTextElement.textContent = promptText;
 
-    const input = document.createElement("input");
-    input.type = "text";
-    input.classList.add("command-input");
-    input.autofocus = true;
+    inputElement = document.createElement("input");
+    inputElement.type = "text";
+    inputElement.classList.add("command-input");
+    inputElement.autofocus = true;
 
-    input.addEventListener("keydown", handleCommand);
+    inputElement.addEventListener("keydown", handleCommand);
+    inputElement.addEventListener("keydown", handleTabCompletion);
 
-    prompt.appendChild(promptTextElement);
-    prompt.appendChild(input);
-    terminal.appendChild(prompt);
-    input.focus();
+    promptLine.appendChild(promptTextElement);
+    promptLine.appendChild(inputElement);
+    terminal.appendChild(promptLine);
+
+    inputElement.focus();
+    terminal.scrollTop = terminal.scrollHeight;
   }
 
-  // Handle commands
   function handleCommand(event) {
     if (event.key === "Enter") {
       const input = event.target.value.trim();
@@ -117,9 +118,39 @@ clear              Clear the terminal.
         commands[command](args.join(" "));
       } else {
         writeOutput(`Error: '${command}' is not a valid command. Type 'help' for a list of commands.`);
+        renderPrompt();
+      }
+    }
+  }
+
+  function handleTabCompletion(event) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      const inputValue = inputElement.value.trim();
+      const words = inputValue.split(" ");
+      const currentInput = words[words.length - 1];
+
+      let suggestions = [];
+
+      if (words.length === 1) {
+        // Suggest commands
+        suggestions = Object.keys(commands).filter((cmd) =>
+          cmd.startsWith(currentInput)
+        );
+      } else {
+        // Suggest files
+        suggestions = Object.keys(files).filter((file) =>
+          file.startsWith(currentInput)
+        );
       }
 
-      renderPrompt();
+      if (suggestions.length === 1) {
+        words[words.length - 1] = suggestions[0];
+        inputElement.value = words.join(" ") + " ";
+      } else if (suggestions.length > 1) {
+        writeOutput(suggestions.join(" "));
+        renderPrompt();
+      }
     }
   }
 });
