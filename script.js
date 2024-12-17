@@ -71,9 +71,11 @@ clear              Clear the terminal.
   }
 
   function clearTerminal() {
-    terminal.innerHTML = "";
+    terminal.innerHTML = ""; // Clear the terminal content
+    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands."); // Re-display welcome message
+    renderPrompt(); // Render the command prompt
   }
-
+  
   function writeOutput(content) {
     const outputLine = document.createElement("div");
     outputLine.innerHTML = content;
