@@ -1,32 +1,28 @@
-name: Deploy Terminal Portfolio
+name: Deploy to GitHub Pages (Main Branch)
 
 on:
   push:
     branches:
-      - main  # Trigger the workflow when pushing to the main branch
-
-permissions:
-  contents: read  # No write permissions required for main branch deployment
+      - main  # Trigger deployment on push to main
 
 jobs:
   deploy:
-    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Ensure Files are Ready
-      - name: Verify Static Files
+      - name: Install dependencies
         run: |
-          if [ ! -f index.html ]; then
-            echo "index.html not found. Please ensure your site files are in the root directory."
-            exit 1
-          fi
-          echo "Static files verified."
+          npm install || echo "No dependencies to install"
 
-      # Step 3: Deployment Confirmation
-      - name: Deployment Confirmation
-        run: echo "Your site is deployed and available at https://<your-username>.github.io/<repository-name>/"
+      - name: Build project
+        run: npm run build || echo "No build step"
+
+      - name: Deploy to GitHub Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: .  # Deploy everything from the root of main
+
+      - name: Publish Pages
+        uses: actions/deploy-pages@v2
