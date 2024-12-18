@@ -128,3 +128,22 @@ body {
 #terminal::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
+
+/* Project Links Styling */
+.project-links ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.project-links li {
+  margin-bottom: 10px;
+}
+
+.project-links a {
+  color: #00aaff;
+  text-decoration: underline;
+}
+
+.project-links a:hover {
+  color: #0088cc;
+}

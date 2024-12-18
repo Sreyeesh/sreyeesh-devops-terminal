@@ -1,0 +1,23 @@
+[
+    {
+      "name": "Sreyeesh DevOps Terminal",
+      "description": "A Linux terminal-inspired portfolio showcasing my DevOps expertise.",
+      "link": "https://github.com/Sreyeesh/sreyeesh-devops-terminal"
+    },
+    {
+      "name": "ResumeForge",
+      "description": "A resume-building tool with a focus on customizable Markdown resumes.",
+      "link": "https://github.com/Sreyeesh/ResumeForge"
+    },
+    {
+      "name": "CourseOrganizerTool",
+      "description": "A CLI tool to organize and manage course videos and durations.",
+      "link": "https://github.com/Sreyeesh/CourseOrganizerTool"
+    },
+    {
+      "name": "Movie-Tracker-CLI",
+      "description": "A command-line application for managing and tracking personal movie collections.",
+      "link": "https://github.com/Sreyeesh/Movie-Tracker-CLI"
+    }
+  ]
+  

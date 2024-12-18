@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ls: listFiles,
     cat: displayFile,
     cv: () => displayFile("master-resume.md"),
+    projects: showProjects,
     clear: clearTerminal,
   };
 
@@ -56,6 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="help-description">View the resume (rendered in Markdown).</span>
         </div>
         <div class="help-row">
+          <span class="help-command">projects</span>
+          <span class="help-description">List and describe portfolio projects.</span>
+        </div>
+        <div class="help-row">
           <span class="help-command">clear</span>
           <span class="help-description">Clear the terminal.</span>
         </div>
@@ -83,11 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
     `;
-  
     writeOutput(helpHTML);
     renderPrompt();
   }
-  
 
   function listFiles() {
     writeOutput(Object.keys(files).join("\n"));
@@ -121,6 +124,30 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPrompt();
   }
 
+  async function showProjects() {
+    try {
+      const response = await fetch("projects.json");
+      if (!response.ok) throw new Error("Failed to load projects.");
+      const projects = await response.json();
+  
+      const projectsList = projects
+        .map(
+          (project) => `
+        <li>
+          <strong>${project.name}</strong><br>
+          ${project.description}<br>
+          <a href="${project.link}" target="_blank">${project.link}</a>
+        </li>`
+        )
+        .join("");
+  
+      writeOutput(`<ul class="project-links">${projectsList}</ul>`);
+    } catch (error) {
+      writeOutput("Error: Unable to load projects.");
+    }
+    renderPrompt();
+  }
+  
   function clearTerminal() {
     terminal.innerHTML = "";
     writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
@@ -212,21 +239,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleShortcuts(event) {
     if (event.ctrlKey && event.key === "c") {
-      // Ctrl+C: Cancel current input
       inputElement.value = "";
       writeOutput(`^C`);
       renderPrompt();
     } else if (event.ctrlKey && event.key === "l") {
-      // Ctrl+L: Clear terminal
       clearTerminal();
     } else if (event.key === "ArrowUp") {
-      // Arrow Up: Show previous command
       if (historyIndex > 0) {
         historyIndex--;
         inputElement.value = commandHistory[historyIndex];
       }
     } else if (event.key === "ArrowDown") {
-      // Arrow Down: Show next command
       if (historyIndex < commandHistory.length - 1) {
         historyIndex++;
         inputElement.value = commandHistory[historyIndex];
