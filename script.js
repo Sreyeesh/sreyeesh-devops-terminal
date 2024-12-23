@@ -4,11 +4,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const terminal = document.getElementById("terminal");
   const promptText = "user@portfolio:~$";
-  const masterResumeURL =
-    "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md";
+
+  const resumeURLs = {
+    "master-resume.md": "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md",
+    "devops-engineer-resume.md": "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/refs/heads/main/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
+  };
 
   const files = {
     "master-resume.md": null,
+    "devops-engineer-resume.md": null,
   };
 
   const commands = {
@@ -16,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ls: listFiles,
     cat: displayFile,
     cv: () => displayFile("master-resume.md"),
+    devops: () => displayFile("devops-engineer-resume.md"),
     projects: showProjects,
     clear: clearTerminal,
   };
@@ -54,7 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="help-row">
           <span class="help-command">cv</span>
-          <span class="help-description">View the resume (rendered in Markdown).</span>
+          <span class="help-description">View the master resume (rendered in Markdown).</span>
+        </div>
+        <div class="help-row">
+          <span class="help-command">devops</span>
+          <span class="help-description">View the tailored DevOps Engineer resume (rendered in Markdown).</span>
         </div>
         <div class="help-row">
           <span class="help-command">projects</span>
@@ -108,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!files[filename]) {
         writeOutput(`Fetching ${filename}...`);
         try {
-          const response = await fetch(masterResumeURL);
+          const response = await fetch(resumeURLs[filename]);
           if (!response.ok) throw new Error("Failed to fetch file.");
           files[filename] = await response.text();
         } catch (error) {
@@ -129,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch("projects.json");
       if (!response.ok) throw new Error("Failed to load projects.");
       const projects = await response.json();
-  
+
       const projectsList = projects
         .map(
           (project) => `
@@ -140,14 +149,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </li>`
         )
         .join("");
-  
+
       writeOutput(`<ul class="project-links">${projectsList}</ul>`);
     } catch (error) {
       writeOutput("Error: Unable to load projects.");
     }
     renderPrompt();
   }
-  
+
   function clearTerminal() {
     terminal.innerHTML = "";
     writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
