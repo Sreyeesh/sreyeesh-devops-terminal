@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ls: listFiles,
     cat: displayFile,
     cv: () => displayFile("master-resume.md"),
-    devops: () => displayFile("devops-engineer-resume.md"),
+    devops: () => displayFile("devops-engineer-resume.md"), // Register the 'devops' command
     projects: showProjects,
     clear: clearTerminal,
   };
