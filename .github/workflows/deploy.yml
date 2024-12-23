@@ -21,10 +21,16 @@ jobs:
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v3
 
+      - name: Build Static Site
+        run: |
+          mkdir -p build
+          cp -R * build/  # Copy all project files to the build directory
+          rm -rf build/.git  # Exclude the Git directory to avoid conflicts
+
       - name: Upload Files for Deployment
         uses: actions/upload-pages-artifact@v2
         with:
-          path: .  # Deploy everything from the root directory
+          path: build  # Deploy everything from the build directory
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
