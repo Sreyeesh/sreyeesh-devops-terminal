@@ -18,28 +18,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js Environment (if applicable)
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'  # Use a stable Node.js version if required by your project
-
-      - name: Install Dependencies (if applicable)
-        run: |
-          if [ -f package.json ]; then
-            npm install
-          fi
-
-      - name: Build Static Site
-        run: |
-          mkdir -p build
-          cp -R * build/  # Copy all project files to the build directory
-          rm -rf build/.git  # Exclude the .git directory to avoid conflicts
-          echo "Build directory created."
-
       - name: Upload Files for Deployment
         uses: actions/upload-pages-artifact@v2
         with:
-          path: build  # Deploy everything from the build directory
+          path: ./  # Upload the entire repository's content
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
