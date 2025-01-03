@@ -253,34 +253,48 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function handleTabCompletion(event) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      const inputValue = inputElement.value.trim();
-      const words = inputValue.split(" ");
-      const currentInput = words[words.length - 1];
+  let tabSuggestions = [];
+let tabIndex = 0;
 
-      let suggestions = [];
-      if (words.length === 1) {
-        suggestions = Object.keys(commands).filter((cmd) =>
-          cmd.startsWith(currentInput)
-        );
-      } else {
-        suggestions = Object.keys(files).filter((file) =>
-          file.startsWith(currentInput)
-        );
-      }
+function handleTabCompletion(event) {
+  if (event.key === "Tab") {
+    event.preventDefault();
 
-      if (suggestions.length === 1) {
-        words[words.length - 1] = suggestions[0];
-        inputElement.value = words.join(" ") + " ";
-      } else if (suggestions.length > 1) {
-        writeOutput(suggestions.join(" "));
-        renderPrompt();
+    const inputValue = inputElement.value.trim();
+    const words = inputValue.split(" ");
+
+    if (words.length === 1) {
+      // First word: suggest commands
+      const currentInput = words[0];
+      tabSuggestions = Object.keys(commands).filter((cmd) => cmd.startsWith(currentInput));
+    } else if (words[0] === "download") {
+      // Second word: suggest files for download
+      const currentInput = words[1] || ""; // Handle case where second word is empty
+      if (!tabSuggestions.length || !tabSuggestions[0].startsWith(currentInput)) {
+        // Populate suggestions only if starting input changes
+        tabSuggestions = Object.keys(resumeURLs).filter((file) => file.startsWith(currentInput));
+        tabIndex = 0; // Reset index
       }
     }
-  }
 
+    if (tabSuggestions.length > 0) {
+      // Cycle through suggestions
+      words[words.length - 1] = tabSuggestions[tabIndex];
+      inputElement.value = words.join(" ") + " ";
+      tabIndex = (tabIndex + 1) % tabSuggestions.length; // Loop through suggestions
+    } else {
+      // Reset suggestions if no match
+      tabSuggestions = [];
+      tabIndex = 0;
+    }
+  } else {
+    // Reset suggestions if user types a new character
+    tabSuggestions = [];
+    tabIndex = 0;
+  }
+}
+
+    
   function handleShortcuts(event) {
     if (event.ctrlKey && event.key === "c") {
       inputElement.value = "";
