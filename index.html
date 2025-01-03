@@ -4,11 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terminal Portfolio</title>
+
+  <!-- CSS File -->
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Marked.js for Markdown Parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.18/marked.min.js"></script>
 </head>
 <body>
-  <div id="terminal" style="background-color: black; color: white; padding: 20px; font-family: monospace;"></div>
+  <!-- JavaScript Fallback -->
+  <noscript>
+    <div style="color: red; text-align: center; font-family: monospace;">
+      This portfolio requires JavaScript to run. Please enable JavaScript in your browser.
+    </div>
+  </noscript>
+
+  <!-- Terminal Display -->
+  <div id="terminal">
+    <!-- Terminal content dynamically rendered here -->
+  </div>
+
+  <!-- Main JavaScript File -->
   <script src="script.js"></script>
 </body>
 </html>

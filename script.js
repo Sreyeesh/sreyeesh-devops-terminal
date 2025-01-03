@@ -8,21 +8,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumeURLs = {
     "master-resume.md": "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md",
     "devops-engineer-resume.md": "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/refs/heads/main/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
+    "master-resume.pdf": "assets/resumes/master-resume.pdf",
+    "Sreyeesh_Garimella_DevOps_Engineer.pdf": "assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf",
   };
+  
 
   const files = {
     "master-resume.md": null,
     "devops-engineer-resume.md": null,
+    "master-resume.pdf": null,
+    "Sreyeesh_Garimella_DevOps_Engineer.pdf": null,
   };
-
+  
   const commands = {
     help: showHelp,
     ls: listFiles,
     cat: displayFile,
     cv: () => displayFile("master-resume.md"),
-    devops: () => displayFile("devops-engineer-resume.md"), // Register the 'devops' command
+    devops: () => displayFile("devops-engineer-resume.md"),
     projects: showProjects,
     clear: clearTerminal,
+    download: downloadFile, // Add the download command
   };
 
   let inputElement;
@@ -36,6 +42,30 @@ document.addEventListener("DOMContentLoaded", () => {
     writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
     renderPrompt();
   }
+
+  function downloadFile(filename) {
+    if (!filename) {
+      writeOutput("Usage: download <filename>");
+      renderPrompt();
+      return;
+    }
+  
+    if (filename.endsWith(".pdf") && filename in resumeURLs) {
+      const link = document.createElement("a");
+      link.href = resumeURLs[filename];
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      writeOutput(`Downloading '${filename}'...`);
+    } else if (filename.endsWith(".md")) {
+      writeOutput(`Error: Cannot download '${filename}'. Only PDF files are available for download.`);
+    } else {
+      writeOutput(`Error: '${filename}' is not available.`);
+    }
+    renderPrompt();
+  }
+  
 
   function showHelp() {
     const helpHTML = `
@@ -73,6 +103,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="help-command">clear</span>
           <span class="help-description">Clear the terminal.</span>
         </div>
+        <div class="help-row">
+          <span class="help-command">download &lt;filename&gt;</span>
+          <span class="help-description">Download a file (e.g., resumes) as a PDF.</span>
+        </div>
         <hr class="help-divider"/>
         <div class="help-header">
           <span class="help-command">Shortcut</span>
@@ -102,10 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function listFiles() {
+    // List all files
     writeOutput(Object.keys(files).join("\n"));
     renderPrompt();
   }
-
+  
   async function displayFile(filename) {
     if (!filename) {
       writeOutput("Usage: cat <filename>");
