@@ -40,6 +40,24 @@ body {
   margin-bottom: 5px;
 }
 
+#terminal pre {
+  font-family: monospace;
+  font-size: 14px;
+  background-color: transparent;
+  color: white;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+
+/* Links in terminal style */
+#terminal pre a {
+  color: cyan; /* Cyan for links */
+  text-decoration: none; /* No underlines for links */
+}
+
 /* Scrollbar Styling for Terminal */
 #terminal::-webkit-scrollbar {
   width: 8px;

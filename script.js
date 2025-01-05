@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let currentDirectory = directories.home;
-
   const commands = {
     help: showHelp,
     ls: listFiles,
@@ -36,6 +35,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let tabIndex = 0;
 
   initializeTerminal();
+
+  // Global keyboard shortcut listeners
+  document.addEventListener("keydown", (event) => {
+    if (event.ctrlKey && event.key === "l") {
+      event.preventDefault(); // Prevent default browser behavior
+      clearTerminal(); // Ctrl + L to clear terminal
+    }
+  });
 
   function initializeTerminal() {
     terminal.innerHTML = "";
@@ -57,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     inputElement.addEventListener("keydown", handleCommand);
     inputElement.addEventListener("keydown", handleTabCompletion);
+    inputElement.addEventListener("keydown", handleHistoryNavigation);
 
     promptLine.appendChild(promptTextElement);
     promptLine.appendChild(inputElement);
@@ -97,7 +105,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (fileExtension === "md") {
           const content = await response.text();
-          writeOutput(`<pre>${content}</pre>`);
+          const plainTextContent = content
+            .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold syntax (**bold** -> bold)
+            .replace(/---/g, "") // Remove horizontal rules
+            .replace(/\[(.*?)\]\((.*?)\)/g, "$1: $2"); // Convert links
+
+          writeOutput(`<pre>${plainTextContent}</pre>`);
         } else {
           writeOutput(`Cannot display '${filename}'. Use 'download ${filename}' to save it locally.`);
         }
@@ -165,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pwd                 Print the current directory path.
     cd <dirname>        Change the current directory.
     clear               Clear the terminal screen.
-  
+
   Shortcuts:
     Ctrl + L            Clear the terminal screen.
     Tab                 Auto-complete commands or file names.
@@ -174,17 +187,23 @@ document.addEventListener("DOMContentLoaded", () => {
     writeOutput(`<pre>${helpOutput}</pre>`);
     renderPrompt();
   }
-  
 
-  function getPath(root, target, path) {
-    for (const [key, value] of Object.entries(root)) {
-      if (value === target) return [path, key];
-      if (typeof value === "object") {
-        const result = getPath(value, target, `${path}/${key}`);
-        if (result) return result;
+  function handleHistoryNavigation(event) {
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (historyIndex > 0) {
+        historyIndex--;
+        inputElement.value = commandHistory[historyIndex];
+      }
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (historyIndex < commandHistory.length - 1) {
+        historyIndex++;
+        inputElement.value = commandHistory[historyIndex];
+      } else {
+        inputElement.value = "";
       }
     }
-    return [];
   }
 
   function handleTabCompletion(event) {
@@ -229,6 +248,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function getPath(root, target, path) {
+    for (const [key, value] of Object.entries(root)) {
+      if (value === target) return [path, key];
+      if (typeof value === "object") {
+        const result = getPath(value, target, `${path}/${key}`);
+        if (result) return result;
+      }
+    }
+    return [];
+  }
+
   function getLongestCommonPrefix(strings) {
     if (!strings.length) return "";
     let prefix = strings[0];
@@ -248,6 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       writeOutput(`${promptText} ${input}`);
       commandHistory.push(input);
+      historyIndex = commandHistory.length;
 
       const [command, ...args] = input.split(" ");
       inputElement.disabled = true;
