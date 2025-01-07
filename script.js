@@ -9,10 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
     home: {
       "README.md": "Welcome to your home directory!",
       resume: {
-        "master-resume.md": "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/main/resumes/master-resume.md",
-        "devops-engineer-resume.md": "https://raw.githubusercontent.com/Sreyeesh/ResumeForge/refs/heads/main/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
-        "master-resume.pdf": "resume/master-resume.pdf",
-        "Sreyeesh_Garimella_DevOps_Engineer.pdf": "resume/Sreyeesh_Garimella_DevOps_Engineer.pdf",
+        "master-resume.md": "./assets/resumes/master-resume.md",
+        "devops-engineer-resume.md": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
+        "master-resume.pdf": "./assets/resumes/master-resume.pdf",
+        "Sreyeesh_Garimella_DevOps_Engineer.pdf": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf",
       },
     },
   };
@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentDirectory = directories.home;
   const commands = {
     help: showHelp,
+    onboarding: startOnboarding,
     ls: listFiles,
     cat: displayFile,
     download: downloadFile,
@@ -39,14 +40,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Global keyboard shortcut listeners
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey && event.key === "l") {
-      event.preventDefault(); // Prevent default browser behavior
-      clearTerminal(); // Ctrl + L to clear terminal
+      event.preventDefault();
+      clearTerminal();
     }
   });
 
   function initializeTerminal() {
     terminal.innerHTML = "";
-    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' for a list of commands.");
+    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' to get started or 'onboarding' for a guided walkthrough.");
     renderPrompt();
   }
 
@@ -62,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     inputElement.classList.add("command-input");
     inputElement.autofocus = true;
 
-    inputElement.addEventListener("keydown", handleCommand);
+    inputElement.addEventListener("keydown", (event) => handleCommand(event));
     inputElement.addEventListener("keydown", handleTabCompletion);
     inputElement.addEventListener("keydown", handleHistoryNavigation);
 
@@ -80,6 +81,27 @@ document.addEventListener("DOMContentLoaded", () => {
     outputLine.innerHTML = content;
     terminal.appendChild(outputLine);
     terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  async function startOnboarding() {
+    const steps = [
+      "Welcome to the onboarding walkthrough!",
+      "1. Type 'ls' to list the files and directories available.",
+      "2. Navigate to a directory using 'cd <directory_name>'. For example, try 'cd resume'.",
+      "3. View a file's content using 'cat <file_name>'. For example, 'cat README.md'.",
+      "4. Download a file with 'download <file_name>'. For example, 'download master-resume.pdf'.",
+      "That's it! You're ready to explore the portfolio. Type 'help' anytime for a list of commands.",
+    ];
+
+    for (const step of steps) {
+      await delay(1500);
+      writeOutput(step);
+    }
+    renderPrompt();
+  }
+
+  function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   function listFiles() {
@@ -172,13 +194,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const helpOutput = `
   Commands:
     help                Show this help message.
+    onboarding          Start the onboarding walkthrough.
     ls                  List files and directories.
     cat <filename>      Display the content of a file.
     download <filename> Download a file.
     pwd                 Print the current directory path.
     cd <dirname>        Change the current directory.
     clear               Clear the terminal screen.
-
+  
   Shortcuts:
     Ctrl + L            Clear the terminal screen.
     Tab                 Auto-complete commands or file names.
