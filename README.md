@@ -1,4 +1,4 @@
-```markdown
+
 # 🚀 Terminal Portfolio
 
 An interactive, **Linux-like terminal simulation** built with **HTML**, **CSS**, and **JavaScript**. This terminal-style portfolio lets users explore your resume, projects, and skills using standard terminal commands like `ls`, `cat`, and `pwd`.
