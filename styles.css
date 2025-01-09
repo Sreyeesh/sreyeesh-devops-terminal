@@ -51,16 +51,48 @@ body {
   word-wrap: break-word;
 }
 
-/* Links in terminal style */
+/* Markdown Styling */
+#terminal .markdown {
+  font-size: 14px; /* Adjust the font size here */
+  line-height: 1.5;
+}
+
+#terminal .markdown h1 {
+  font-size: 18px;
+  color: #00ff00; /* Optional: Green for H1 headings */
+}
+
+#terminal .markdown h2 {
+  font-size: 16px;
+  color: #00ccff; /* Optional: Cyan for H2 headings */
+}
+
+#terminal .markdown h3 {
+  font-size: 14px;
+  color: #cccccc; /* Optional: Light gray for H3 headings */
+}
+
+#terminal .markdown strong {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+#terminal .markdown em {
+  font-size: 14px;
+  font-style: italic;
+  color: #ffa500;
+}
+
 #terminal .markdown a {
-  color: cyan; /* Cyan color for links */
-  text-decoration: none; /* No underlines by default */
-  font-weight: bold; /* Bold for emphasis */
+  font-size: 14px;
+  color: cyan;
+  text-decoration: none;
 }
 
 #terminal .markdown a:hover {
-  text-decoration: underline; /* Underline on hover */
-  color: lightblue; /* Light blue on hover */
+  text-decoration: underline;
+  color: lightblue;
 }
 
 /* Scrollbar Styling for Terminal */
