@@ -10,11 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
       projects: {
         "projects.md": "./assets/projects/projects.md",
       },
-      resume: {
-        "master-resume.md": "./assets/resumes/master-resume.md",
-        "devops-engineer-resume.md": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
-        "master-resume.pdf": "./assets/resumes/master-resume.pdf",
-        "Sreyeesh_Garimella_DevOps_Engineer.pdf": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf",
+      resumes: {
+        "Master Resume (Markdown)": "./assets/resumes/master-resume.md",
+        "Master Resume (PDF)": "./assets/resumes/master-resume.pdf",
+        "DevOps Engineer Resume (Markdown)": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
+        "DevOps Engineer Resume (PDF)": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf",
       },
     },
   };
@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const commands = {
     help: showHelp,
     onboarding: startOnboarding,
+    resumes: showResumes,
     ls: listFiles,
     cat: displayFile,
     download: downloadFile,
@@ -39,14 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeTerminal();
 
-  // Global keyboard shortcut listeners
-  document.addEventListener("keydown", (event) => {
-    if (event.ctrlKey && event.key === "l") {
-      event.preventDefault();
-      clearTerminal();
-    }
-  });
-
   function initializeTerminal() {
     terminal.innerHTML = "";
     writeOutput("Welcome to my Terminal Portfolio!\nType 'help' to get started or 'onboarding' for a guided walkthrough.");
@@ -59,17 +52,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const promptTextElement = document.createElement("span");
     promptTextElement.textContent = promptText;
+    promptLine.appendChild(promptTextElement);
 
     inputElement = document.createElement("input");
     inputElement.type = "text";
     inputElement.classList.add("command-input");
     inputElement.autofocus = true;
 
-    inputElement.addEventListener("keydown", (event) => handleCommand(event));
+    inputElement.addEventListener("keydown", handleCommand);
     inputElement.addEventListener("keydown", handleTabCompletion);
-    inputElement.addEventListener("keydown", handleHistoryNavigation);
 
-    promptLine.appendChild(promptTextElement);
     promptLine.appendChild(inputElement);
     terminal.appendChild(promptLine);
 
@@ -85,14 +77,73 @@ document.addEventListener("DOMContentLoaded", () => {
     terminal.scrollTop = terminal.scrollHeight;
   }
 
+  function handleTabCompletion(event) {
+    if (event.key !== "Tab") return;
+
+    event.preventDefault();
+    const input = inputElement.value.trim();
+    const words = input.split(" ");
+    const baseCommand = words[0];
+    const partialArg = words.slice(1).join(" ");
+
+    if (!input) {
+      tabSuggestions = [];
+      tabIndex = 0;
+      return;
+    }
+
+    // Case 1: Suggest commands
+    if (words.length === 1) {
+      tabSuggestions = Object.keys(commands).filter((cmd) => cmd.startsWith(baseCommand));
+    }
+    // Case 2: Suggest files or directories for specific commands
+    else if (["cd", "cat", "download"].includes(baseCommand)) {
+      tabSuggestions = Object.keys(currentDirectory).filter((key) => key.startsWith(partialArg));
+    }
+
+    if (tabSuggestions.length === 1) {
+      words[words.length - 1] = tabSuggestions[0];
+      inputElement.value = words.join(" ");
+      tabSuggestions = [];
+    } else if (tabSuggestions.length > 1) {
+      writeOutput(tabSuggestions.join(" "));
+      tabIndex = (tabIndex + 1) % tabSuggestions.length;
+      inputElement.value = `${baseCommand} ${tabSuggestions[tabIndex]}`;
+    } else {
+      tabSuggestions = [];
+      tabIndex = 0;
+    }
+  }
+
+  function handleCommand(event) {
+    if (event.key === "Enter") {
+      const input = inputElement.value.trim();
+      if (!input) return;
+
+      writeOutput(`${promptText} ${input}`);
+      commandHistory.push(input);
+      historyIndex = commandHistory.length;
+
+      const [command, ...args] = input.split(" ");
+      inputElement.disabled = true;
+
+      if (commands[command]) {
+        commands[command](args.join(" "));
+      } else {
+        writeOutput(`Error: '${command}' is not a valid command. Type 'help' for a list of commands.`);
+        renderPrompt();
+      }
+    }
+  }
+
   async function startOnboarding() {
     const steps = [
       "Welcome to the onboarding walkthrough!",
-      "1. Type 'ls' to list the files and directories available.",
-      "2. Navigate to a directory using 'cd <directory_name>'. For example, try 'cd resume'.",
-      "3. View a file's content using 'cat <file_name>'. For example, 'cat projects.md'.",
-      "4. Download a file with 'download <file_name>'. For example, 'download master-resume.pdf'.",
-      "That's it! You're ready to explore the portfolio. Type 'help' anytime for a list of commands.",
+      "1. Type 'resumes' to view all available resumes and download them.",
+      "2. Type 'ls' and 'cd' to navigate directories, e.g., 'cd projects' to explore projects.",
+      "3. Use 'cat <filename>' to view file content.",
+      "4. Use 'download <filename>' to save a file locally.",
+      "You're now ready to explore!",
     ];
 
     for (const step of steps) {
@@ -108,36 +159,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function listFiles() {
     const entries = Object.keys(currentDirectory);
-    writeOutput(entries.length ? entries.join("\n") : "No files or directories.");
+    if (entries.length) {
+      writeOutput(entries.join("\n"));
+    } else {
+      writeOutput("No files or directories.");
+    }
     renderPrompt();
   }
+
+  function showResumes() {
+    writeOutput(`
+<strong>Resumes:</strong>
+- <a href="./assets/resumes/master-resume.pdf" target="_blank">Master Resume (PDF)</a>
+- <a href="./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf" target="_blank">DevOps Engineer Resume (PDF)</a>
+- <a href="./assets/resumes/master-resume.md" target="_blank">Master Resume (Markdown)</a>
+- <a href="./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md" target="_blank">DevOps Engineer Resume (Markdown)</a>
+
+You can also use 'cat <filename>' or 'download <filename>' to view or save files locally.
+    `);
+    renderPrompt();
+  }
+
   async function displayFile(filename) {
     if (!filename) {
       writeOutput("Usage: cat <filename>");
       renderPrompt();
       return;
     }
-  
+
     if (currentDirectory[filename]) {
       try {
-        const url = currentDirectory[filename];
-        const response = await fetch(url);
+        const response = await fetch(currentDirectory[filename]);
         if (!response.ok) throw new Error(`Failed to fetch '${filename}'`);
-  
-        const fileExtension = filename.split(".").pop();
-  
-        if (fileExtension === "md") {
-          const content = await response.text();
-          const htmlContent = content
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold (**text** -> <strong>text</strong>)
-            .replace(/---/g, "<hr>") // Horizontal rule (--- -> <hr>)
-            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>') // Links ([text](url) -> <a href="url">text</a>)
-            .replace(/\n/g, "<br>"); // Newlines to HTML line breaks
-  
-          writeOutput(`<div class="markdown">${htmlContent}</div>`);
-        } else {
-          writeOutput(`Cannot display '${filename}'. Use 'download ${filename}' to save it locally.`);
-        }
+
+        const content = await response.text();
+        writeOutput(`<pre>${content.replace(/\n/g, "<br>")}</pre>`);
       } catch (error) {
         writeOutput(`Error: Could not fetch '${filename}': ${error.message}`);
       }
@@ -146,7 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     renderPrompt();
   }
-  
 
   function downloadFile(filename) {
     if (!filename) {
@@ -173,11 +228,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (dirname === "..") {
       currentDirectory = directories.home;
       writeOutput("Changed to parent directory.");
-    } else if (currentDirectory[dirname]) {
+    } else if (currentDirectory[dirname] && typeof currentDirectory[dirname] === "object") {
       currentDirectory = currentDirectory[dirname];
       writeOutput(`Changed to '${dirname}' directory.`);
+    } else if (currentDirectory[dirname]) {
+      writeOutput(`Error: '${dirname}' is a file, not a directory.`);
     } else {
-      writeOutput(`cd: ${dirname}: No such file or directory.`);
+      writeOutput(`cd: '${dirname}': No such file or directory.`);
     }
     renderPrompt();
   }
@@ -195,83 +252,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showHelp() {
     const helpOutput = `
-  Commands:
-    help                Show this help message.
-    onboarding          Start the onboarding walkthrough.
-    ls                  List files and directories.
-    cat <filename>      Display the content of a file.
-    download <filename> Download a file.
-    pwd                 Print the current directory path.
-    cd <dirname>        Change the current directory.
-    clear               Clear the terminal screen.
-  
-  Shortcuts:
-    Ctrl + L            Clear the terminal screen.
-    Tab                 Auto-complete commands or file names.
-    Arrow Up/Down       Navigate through command history.
-  `;
+Commands:
+  help                Show this help message.
+  onboarding          Start the onboarding walkthrough.
+  resumes             Display all available resumes.
+  ls                  List files and directories.
+  cat <filename>      Display the content of a file.
+  download <filename> Download a file.
+  pwd                 Print the current directory path.
+  cd <dirname>        Change the current directory.
+  clear               Clear the terminal screen.
+    `;
     writeOutput(`<pre>${helpOutput}</pre>`);
     renderPrompt();
-  }
-
-  function handleHistoryNavigation(event) {
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      if (historyIndex > 0) {
-        historyIndex--;
-        inputElement.value = commandHistory[historyIndex];
-      }
-    } else if (event.key === "ArrowDown") {
-      event.preventDefault();
-      if (historyIndex < commandHistory.length - 1) {
-        historyIndex++;
-        inputElement.value = commandHistory[historyIndex];
-      } else {
-        inputElement.value = "";
-      }
-    }
-  }
-
-  function handleTabCompletion(event) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-
-      const inputValue = inputElement.value.trim();
-      const words = inputValue.split(" ");
-
-      if (words.length === 1) {
-        tabSuggestions = Object.keys(commands).filter((cmd) =>
-          cmd.startsWith(words[0])
-        );
-      } else if (["cat", "download", "cd"].includes(words[0])) {
-        tabSuggestions = Object.keys(currentDirectory).filter((file) =>
-          file.startsWith(words[1] || "")
-        );
-      }
-
-      if (tabSuggestions.length === 1) {
-        words[words.length - 1] = tabSuggestions[0];
-        inputElement.value = words.join(" ") + " ";
-        tabSuggestions = [];
-      } else if (tabSuggestions.length > 1) {
-        const commonPrefix = getLongestCommonPrefix(tabSuggestions);
-        if (commonPrefix.length > (words[words.length - 1] || "").length) {
-          words[words.length - 1] = commonPrefix;
-          inputElement.value = words.join(" ");
-        } else {
-          words[words.length - 1] = tabSuggestions[tabIndex];
-          inputElement.value = words.join(" ");
-          tabIndex = (tabIndex + 1) % tabSuggestions.length;
-        }
-        writeOutput(tabSuggestions.join(" "));
-      } else {
-        tabSuggestions = [];
-        tabIndex = 0;
-      }
-    } else {
-      tabSuggestions = [];
-      tabIndex = 0;
-    }
   }
 
   function getPath(root, target, path) {
@@ -283,38 +276,5 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     return [];
-  }
-
-  function getLongestCommonPrefix(strings) {
-    if (!strings.length) return "";
-    let prefix = strings[0];
-    for (let i = 1; i < strings.length; i++) {
-      while (!strings[i].startsWith(prefix)) {
-        prefix = prefix.slice(0, -1);
-        if (!prefix) return "";
-      }
-    }
-    return prefix;
-  }
-
-  function handleCommand(event) {
-    if (event.key === "Enter") {
-      const input = inputElement.value.trim();
-      if (!input) return;
-
-      writeOutput(`${promptText} ${input}`);
-      commandHistory.push(input);
-      historyIndex = commandHistory.length;
-
-      const [command, ...args] = input.split(" ");
-      inputElement.disabled = true;
-
-      if (commands[command]) {
-        commands[command](args.join(" "));
-      } else {
-        writeOutput(`Error: '${command}' is not a valid command. Type 'help' for a list of commands.`);
-        renderPrompt();
-      }
-    }
   }
 });
