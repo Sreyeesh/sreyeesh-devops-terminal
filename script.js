@@ -11,10 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
         "projects.md": "./assets/projects/projects.md",
       },
       resumes: {
-        "Master Resume (Markdown)": "./assets/resumes/master-resume.md",
-        "Master Resume (PDF)": "./assets/resumes/master-resume.pdf",
-        "DevOps Engineer Resume (Markdown)": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
-        "DevOps Engineer Resume (PDF)": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf",
+        "master-resume.md": "./assets/resumes/master-resume.md",
+        "master-resume.pdf": "./assets/resumes/master-resume.pdf",
+        "Sreyeesh_Garimella_DevOps_Engineer.md": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
+        "Sreyeesh_Garimella_DevOps_Engineer.pdf": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf",
       },
     },
   };
@@ -29,10 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * Utility Functions
    */
-  function writeOutput(content) {
+  function writeOutput(content, isError = false) {
     const outputLine = document.createElement("div");
     outputLine.classList.add("output-line");
-    outputLine.innerHTML = content;
+    outputLine.innerHTML = isError ? `<span style="color: red;">${content}</span>` : content;
     terminal.appendChild(outputLine);
     terminal.scrollTop = terminal.scrollHeight;
   }
@@ -61,7 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
     terminal.scrollTop = terminal.scrollHeight;
   }
 
+  function formatLsOutput(entries) {
+    return entries
+      .map((entry) =>
+        typeof currentDirectory[entry] === "object" ? `${entry}/` : `${entry}`
+      )
+      .join("    "); // Add spaces between entries
+  }
+
   function parseMarkdown(content) {
+    // Function to parse markdown content into HTML
     return content
       .replace(/(?:\r\n|\r|\n)/g, "<br>")
       .replace(/^### (.*?)$/gm, "<h3>$1</h3>")
@@ -77,119 +86,82 @@ document.addEventListener("DOMContentLoaded", () => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  function getPath(root, target, path) {
-    for (const [key, value] of Object.entries(root)) {
-      if (value === target) return [path, key];
-      if (typeof value === "object") {
-        const result = getPath(value, target, `${path}/${key}`);
-        if (result) return result;
-      }
-    }
-    return [];
-  }
-
   /**
    * Command Functions
    */
-  function showHelp() {
-    const helpOutput = `
-Commands:
-  help                Show this help message.
-  onboarding          Start the onboarding walkthrough.
-  resumes             Display all available resumes.
-  ls                  List files and directories.
-  cat <filename>      Display the content of a file.
-  download <filename> Download a file.
-  pwd                 Print the current directory path.
-  cd <dirname>        Change the current directory.
-  clear               Clear the terminal screen.
-
-Shortcuts:
-  Tab                 Auto-complete commands or filenames.
-  Ctrl + C            Interrupt the current command.
-  Ctrl + L            Clear the terminal screen.
-    `;
-    writeOutput(`<pre>${helpOutput}</pre>`);
-    renderPrompt();
-  }
-
-  async function startOnboarding() {
-    const steps = [
-      "Welcome to the onboarding walkthrough!",
-      "1. Type 'resumes' to view all available resumes and download them.",
-      "2. Type 'ls' and 'cd' to navigate directories, e.g., 'cd projects' to explore projects.",
-      "3. Use 'cat <filename>' to view file content.",
-      "4. Use 'download <filename>' to save a file locally.",
-      "You're now ready to explore!",
-    ];
-
-    for (const step of steps) {
-      await delay(1500);
-      writeOutput(step);
+  function listFiles() {
+    const entries = Object.keys(currentDirectory);
+    if (entries.length) {
+      writeOutput(formatLsOutput(entries));
+    } else {
+      writeOutput("ls: No files or directories", true);
     }
-    renderPrompt();
-  }
-
-  function showResumes() {
-    writeOutput(`
-<strong>Resumes:</strong>
-- <a href="./assets/resumes/master-resume.pdf" target="_blank">Master Resume (PDF)</a>
-- <a href="./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf" target="_blank">DevOps Engineer Resume (PDF)</a>
-- <a href="./assets/resumes/master-resume.md" target="_blank">Master Resume (Markdown)</a>
-- <a href="./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md" target="_blank">DevOps Engineer Resume (Markdown)</a>
-
-You can also use 'cat <filename>' or 'download <filename>' to view or save files locally.
-    `);
     renderPrompt();
   }
 
   async function displayFile(filename) {
     if (!filename) {
-      writeOutput("Usage: cat <filename>");
+      writeOutput("Usage: cat <filename>", true);
       renderPrompt();
       return;
     }
 
+    filename = filename.trim().replace(/^["']|["']$/g, ""); // Remove quotes
     if (currentDirectory[filename]) {
+      const fileExtension = filename.split(".").pop();
+
+      if (fileExtension === "pdf") {
+        writeOutput(
+          `cat: ${filename}: Cannot display binary file. Use 'download ${filename}' or <a href="${currentDirectory[filename]}" target="_blank">click here</a> to view.`,
+          true
+        );
+        renderPrompt();
+        return;
+      }
+
       try {
         const response = await fetch(currentDirectory[filename]);
         if (!response.ok) throw new Error(`Failed to fetch '${filename}'`);
 
         const content = await response.text();
-        const fileExtension = filename.split(".").pop();
-
         if (fileExtension === "md") {
-          const renderedContent = parseMarkdown(content);
-          writeOutput(`<div class="markdown">${renderedContent}</div>`);
+          writeOutput(`<div class="markdown">${parseMarkdown(content)}</div>`);
         } else {
           writeOutput(`<pre>${content.replace(/\n/g, "<br>")}</pre>`);
         }
       } catch (error) {
-        writeOutput(`Error: Could not fetch '${filename}': ${error.message}`);
+        writeOutput(`cat: ${filename}: ${error.message}`, true);
       }
     } else {
-      writeOutput(`Error: '${filename}' does not exist.`);
+      writeOutput(`cat: ${filename}: No such file or directory`, true);
     }
     renderPrompt();
   }
 
-  function listFiles() {
-    const entries = Object.keys(currentDirectory);
-    if (entries.length) {
-      writeOutput(entries.join("\n"));
+  function changeDirectory(dirname) {
+    dirname = dirname.trim();
+    if (dirname === "..") {
+      currentDirectory = directories.home;
+      writeOutput("Changed to parent directory.");
+    } else if (currentDirectory[dirname] && typeof currentDirectory[dirname] === "object") {
+      currentDirectory = currentDirectory[dirname];
+      writeOutput(`Changed to '${dirname}' directory.`);
+    } else if (currentDirectory[dirname]) {
+      writeOutput(`Error: '${dirname}' is not a directory. Use 'ls' to view available directories.`, true);
     } else {
-      writeOutput("No files or directories.");
+      writeOutput(`cd: '${dirname}': No such file or directory`, true);
     }
     renderPrompt();
   }
 
   function downloadFile(filename) {
     if (!filename) {
-      writeOutput("Usage: download <filename>");
+      writeOutput("Usage: download <filename>", true);
       renderPrompt();
       return;
     }
 
+    filename = filename.trim().replace(/^["']|["']$/g, ""); // Remove quotes
     if (currentDirectory[filename]) {
       const link = document.createElement("a");
       link.href = currentDirectory[filename];
@@ -199,29 +171,21 @@ You can also use 'cat <filename>' or 'download <filename>' to view or save files
       document.body.removeChild(link);
       writeOutput(`Downloading '${filename}'...`);
     } else {
-      writeOutput(`Error: '${filename}' does not exist.`);
+      writeOutput(`download: ${filename}: No such file or directory`, true);
     }
     renderPrompt();
   }
 
-  function changeDirectory(dirname) {
-    if (dirname === "..") {
-      currentDirectory = directories.home;
-      writeOutput("Changed to parent directory.");
-    } else if (currentDirectory[dirname] && typeof currentDirectory[dirname] === "object") {
-      currentDirectory = currentDirectory[dirname];
-      writeOutput(`Changed to '${dirname}' directory.`);
-    } else if (currentDirectory[dirname]) {
-      writeOutput(`Error: '${dirname}' is a file, not a directory.`);
-    } else {
-      writeOutput(`cd: '${dirname}': No such file or directory.`);
-    }
-    renderPrompt();
-  }
-
-  function printWorkingDirectory() {
-    const path = getPath(directories.home, currentDirectory, "home");
-    writeOutput(`/${path.join("/")}`);
+  function showResumes() {
+    const resumeLinks = Object.keys(directories.home.resumes)
+      .map(
+        (file) =>
+          `<li><a href="${directories.home.resumes[file]}" target="_blank">${file}</a></li>`
+      )
+      .join("");
+    writeOutput(
+      `<strong>Available Resumes:</strong><ul>${resumeLinks}</ul>You can also use 'download <filename>' to save them locally.`
+    );
     renderPrompt();
   }
 
@@ -231,29 +195,8 @@ You can also use 'cat <filename>' or 'download <filename>' to view or save files
   }
 
   /**
-   * Event Handlers
+   * Tab Completion
    */
-  function handleCommand(event) {
-    if (event.key === "Enter") {
-      const input = inputElement.value.trim();
-      if (!input) return;
-
-      writeOutput(`${promptText} ${input}`);
-      commandHistory.push(input);
-      historyIndex = commandHistory.length;
-
-      const [command, ...args] = input.split(" ");
-      inputElement.disabled = true;
-
-      if (commands[command]) {
-        commands[command](args.join(" "));
-      } else {
-        writeOutput(`Error: '${command}' is not a valid command. Type 'help' for a list of commands.`);
-        renderPrompt();
-      }
-    }
-  }
-
   function handleTabCompletion(event) {
     if (event.key !== "Tab") return;
 
@@ -280,12 +223,36 @@ You can also use 'cat <filename>' or 'download <filename>' to view or save files
       inputElement.value = words.join(" ");
       tabSuggestions = [];
     } else if (tabSuggestions.length > 1) {
-      writeOutput(tabSuggestions.join(" "));
+      writeOutput(tabSuggestions.join("    "));
       tabIndex = (tabIndex + 1) % tabSuggestions.length;
       inputElement.value = `${baseCommand} ${tabSuggestions[tabIndex]}`;
     } else {
       tabSuggestions = [];
       tabIndex = 0;
+    }
+  }
+
+  /**
+   * Event Handlers
+   */
+  function handleCommand(event) {
+    if (event.key === "Enter") {
+      const input = inputElement.value.trim();
+      if (!input) return;
+
+      writeOutput(`${promptText} ${input}`);
+      commandHistory.push(input);
+      historyIndex = commandHistory.length;
+
+      const [command, ...args] = input.split(" ");
+      inputElement.disabled = true;
+
+      if (commands[command]) {
+        commands[command](args.join(" "));
+      } else {
+        writeOutput(`bash: ${command}: command not found`, true);
+        renderPrompt();
+      }
     }
   }
 
@@ -303,18 +270,38 @@ You can also use 'cat <filename>' or 'download <filename>' to view or save files
   }
 
   /**
-   * Command Definitions
+   * Commands
    */
   const commands = {
-    help: showHelp,
-    onboarding: startOnboarding,
+    help: () => {
+      const helpText = `
+Commands:
+  help                Show this help message.
+  resumes             Display all available resumes.
+  onboarding          Start the onboarding walkthrough.
+  ls                  List files and directories.
+  cat <filename>      Display the content of a file.
+  download <filename> Download a file.
+  cd <dirname>        Change the current directory.
+  clear               Clear the terminal screen.
+
+Shortcuts:
+  Tab                 Auto-complete commands or filenames.
+  Ctrl+C              Interrupt current command.
+  Ctrl+L              Clear the terminal screen.
+      `;
+      writeOutput(`<pre>${helpText}</pre>`);
+      renderPrompt();
+    },
+    onboarding: async () => {
+      await startOnboarding();
+    },
     resumes: showResumes,
     ls: listFiles,
     cat: displayFile,
     download: downloadFile,
-    clear: clearTerminal,
-    pwd: printWorkingDirectory,
     cd: changeDirectory,
+    clear: clearTerminal,
   };
 
   /**
@@ -322,7 +309,9 @@ You can also use 'cat <filename>' or 'download <filename>' to view or save files
    */
   function initializeTerminal() {
     terminal.innerHTML = "";
-    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' to get started or 'onboarding' for a guided walkthrough.");
+    writeOutput(
+      "Welcome to my Terminal Portfolio! Type 'help' to get started or 'onboarding' for a guided walkthrough."
+    );
     renderPrompt();
   }
 
