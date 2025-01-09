@@ -27,7 +27,69 @@ document.addEventListener("DOMContentLoaded", () => {
   let tabIndex = 0;
 
   /**
-   * Core Commands Functions
+   * Utility Functions
+   */
+  function writeOutput(content) {
+    const outputLine = document.createElement("div");
+    outputLine.classList.add("output-line");
+    outputLine.innerHTML = content;
+    terminal.appendChild(outputLine);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function renderPrompt() {
+    const promptLine = document.createElement("div");
+    promptLine.classList.add("input-line");
+
+    const promptTextElement = document.createElement("span");
+    promptTextElement.textContent = promptText;
+    promptLine.appendChild(promptTextElement);
+
+    inputElement = document.createElement("input");
+    inputElement.type = "text";
+    inputElement.classList.add("command-input");
+    inputElement.autofocus = true;
+
+    inputElement.addEventListener("keydown", handleCommand);
+    inputElement.addEventListener("keydown", handleTabCompletion);
+    inputElement.addEventListener("keydown", handleSpecialKeys);
+
+    promptLine.appendChild(inputElement);
+    terminal.appendChild(promptLine);
+
+    inputElement.focus();
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function parseMarkdown(content) {
+    return content
+      .replace(/(?:\r\n|\r|\n)/g, "<br>")
+      .replace(/^### (.*?)$/gm, "<h3>$1</h3>")
+      .replace(/^## (.*?)$/gm, "<h2>$1</h2>")
+      .replace(/^# (.*?)$/gm, "<h1>$1</h1>")
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/---/g, "<hr>")
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+  }
+
+  function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  function getPath(root, target, path) {
+    for (const [key, value] of Object.entries(root)) {
+      if (value === target) return [path, key];
+      if (typeof value === "object") {
+        const result = getPath(value, target, `${path}/${key}`);
+        if (result) return result;
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Command Functions
    */
   function showHelp() {
     const helpOutput = `
@@ -169,16 +231,8 @@ You can also use 'cat <filename>' or 'download <filename>' to view or save files
   }
 
   /**
-   * Utility Functions
+   * Event Handlers
    */
-  function writeOutput(content) {
-    const outputLine = document.createElement("div");
-    outputLine.classList.add("output-line");
-    outputLine.innerHTML = content;
-    terminal.appendChild(outputLine);
-    terminal.scrollTop = terminal.scrollHeight;
-  }
-
   function handleCommand(event) {
     if (event.key === "Enter") {
       const input = inputElement.value.trim();
@@ -235,51 +289,17 @@ You can also use 'cat <filename>' or 'download <filename>' to view or save files
     }
   }
 
-  function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  function getPath(root, target, path) {
-    for (const [key, value] of Object.entries(root)) {
-      if (value === target) return [path, key];
-      if (typeof value === "object") {
-        const result = getPath(value, target, `${path}/${key}`);
-        if (result) return result;
-      }
+  function handleSpecialKeys(event) {
+    if (event.ctrlKey && event.key === "c") {
+      event.preventDefault();
+      writeOutput(`${promptText} ^C`);
+      renderPrompt();
     }
-    return [];
-  }
 
-  /**
-   * Initialize Terminal
-   */
-  function initializeTerminal() {
-    terminal.innerHTML = "";
-    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' to get started or 'onboarding' for a guided walkthrough.");
-    renderPrompt();
-  }
-
-  function renderPrompt() {
-    const promptLine = document.createElement("div");
-    promptLine.classList.add("input-line");
-
-    const promptTextElement = document.createElement("span");
-    promptTextElement.textContent = promptText;
-    promptLine.appendChild(promptTextElement);
-
-    inputElement = document.createElement("input");
-    inputElement.type = "text";
-    inputElement.classList.add("command-input");
-    inputElement.autofocus = true;
-
-    inputElement.addEventListener("keydown", handleCommand);
-    inputElement.addEventListener("keydown", handleTabCompletion);
-
-    promptLine.appendChild(inputElement);
-    terminal.appendChild(promptLine);
-
-    inputElement.focus();
-    terminal.scrollTop = terminal.scrollHeight;
+    if (event.ctrlKey && event.key === "l") {
+      event.preventDefault();
+      clearTerminal();
+    }
   }
 
   /**
@@ -296,6 +316,15 @@ You can also use 'cat <filename>' or 'download <filename>' to view or save files
     pwd: printWorkingDirectory,
     cd: changeDirectory,
   };
+
+  /**
+   * Initialize Terminal
+   */
+  function initializeTerminal() {
+    terminal.innerHTML = "";
+    writeOutput("Welcome to my Terminal Portfolio!\nType 'help' to get started or 'onboarding' for a guided walkthrough.");
+    renderPrompt();
+  }
 
   initializeTerminal();
 });
