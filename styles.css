@@ -53,23 +53,23 @@ body {
 
 /* Markdown Styling */
 #terminal .markdown {
-  font-size: 14px; /* Adjust the font size here */
+  font-size: 14px;
   line-height: 1.5;
 }
 
 #terminal .markdown h1 {
   font-size: 18px;
-  color: #00ff00; /* Optional: Green for H1 headings */
+  color: #00ff00; /* Green for H1 headings */
 }
 
 #terminal .markdown h2 {
   font-size: 16px;
-  color: #00ccff; /* Optional: Cyan for H2 headings */
+  color: #00ccff; /* Cyan for H2 headings */
 }
 
 #terminal .markdown h3 {
   font-size: 14px;
-  color: #cccccc; /* Optional: Light gray for H3 headings */
+  color: #cccccc; /* Light gray for H3 headings */
 }
 
 #terminal .markdown strong {
@@ -81,7 +81,7 @@ body {
 #terminal .markdown em {
   font-size: 14px;
   font-style: italic;
-  color: #ffa500;
+  color: #ffa500; /* Orange for emphasis */
 }
 
 #terminal .markdown a {
@@ -92,6 +92,35 @@ body {
 
 #terminal .markdown a:hover {
   text-decoration: underline;
+  color: lightblue;
+}
+
+/* Resumes Command Styling */
+#terminal .output-line ul {
+  list-style-type: disc; /* Use bullet points */
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+#terminal .output-line ul li {
+  margin-bottom: 5px; /* Add spacing between list items */
+}
+
+#terminal .output-line ul li a {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#terminal .output-line ul li a.md-link {
+  color: cyan; /* Cyan for Markdown links */
+}
+
+#terminal .output-line ul li a.pdf-link {
+  color: limegreen; /* Lime green for PDF links */
+}
+
+#terminal .output-line ul li a:hover {
+  text-decoration: underline; /* Underline on hover */
   color: lightblue;
 }
 
