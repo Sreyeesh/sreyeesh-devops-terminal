@@ -61,16 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     terminal.scrollTop = terminal.scrollHeight;
   }
 
-  function formatLsOutput(entries) {
-    return entries
-      .map((entry) =>
-        typeof currentDirectory[entry] === "object" ? `${entry}/` : `${entry}`
-      )
-      .join("    "); // Add spaces between entries
-  }
-
   function parseMarkdown(content) {
-    // Function to parse markdown content into HTML
     return content
       .replace(/(?:\r\n|\r|\n)/g, "<br>")
       .replace(/^### (.*?)$/gm, "<h3>$1</h3>")
@@ -82,17 +73,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
   }
 
-  function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
   /**
    * Command Functions
    */
   function listFiles() {
     const entries = Object.keys(currentDirectory);
     if (entries.length) {
-      writeOutput(formatLsOutput(entries));
+      writeOutput(entries.join("    "));
     } else {
       writeOutput("ls: No files or directories", true);
     }
@@ -106,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    filename = filename.trim().replace(/^["']|["']$/g, ""); // Remove quotes
+    filename = filename.trim().replace(/^["']|["']$/g, "");
     if (currentDirectory[filename]) {
       const fileExtension = filename.split(".").pop();
 
@@ -138,6 +125,28 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPrompt();
   }
 
+  function downloadFile(filename) {
+    if (!filename) {
+      writeOutput("Usage: download <filename>", true);
+      renderPrompt();
+      return;
+    }
+
+    filename = filename.trim().replace(/^["']|["']$/g, "");
+    if (currentDirectory[filename]) {
+      const link = document.createElement("a");
+      link.href = currentDirectory[filename];
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      writeOutput(`Downloading '${filename}'...`);
+    } else {
+      writeOutput(`download: ${filename}: No such file or directory`, true);
+    }
+    renderPrompt();
+  }
+
   function changeDirectory(dirname) {
     dirname = dirname.trim();
     if (dirname === "..") {
@@ -154,38 +163,28 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPrompt();
   }
 
-  function downloadFile(filename) {
-    if (!filename) {
-      writeOutput("Usage: download <filename>", true);
-      renderPrompt();
-      return;
-    }
-
-    filename = filename.trim().replace(/^["']|["']$/g, ""); // Remove quotes
-    if (currentDirectory[filename]) {
-      const link = document.createElement("a");
-      link.href = currentDirectory[filename];
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      writeOutput(`Downloading '${filename}'...`);
-    } else {
-      writeOutput(`download: ${filename}: No such file or directory`, true);
-    }
-    renderPrompt();
-  }
-
   function showResumes() {
     const resumeLinks = Object.keys(directories.home.resumes)
-      .map(
-        (file) =>
-          `<li><a href="${directories.home.resumes[file]}" target="_blank">${file}</a></li>`
-      )
+      .map((file) => {
+        const fileExtension = file.split('.').pop();
+        const linkClass = fileExtension === "md" ? "md-link" : "pdf-link";
+        return `<li>
+          <a href="${directories.home.resumes[file]}" target="_blank" class="${linkClass}">
+            ${file}
+          </a>
+        </li>`;
+      })
       .join("");
-    writeOutput(
-      `<strong>Available Resumes:</strong><ul>${resumeLinks}</ul>You can also use 'download <filename>' to save them locally.`
-    );
+
+    writeOutput(`
+      <div>
+        <strong style="color: yellow; font-size: 1.2em;">Available Resumes:</strong>
+        <ul>
+          ${resumeLinks}
+        </ul>
+        <p style="color: lightgray;">You can also use 'download <filename>' to save them locally.</p>
+      </div>
+    `);
     renderPrompt();
   }
 
@@ -278,7 +277,6 @@ document.addEventListener("DOMContentLoaded", () => {
 Commands:
   help                Show this help message.
   resumes             Display all available resumes.
-  onboarding          Start the onboarding walkthrough.
   ls                  List files and directories.
   cat <filename>      Display the content of a file.
   download <filename> Download a file.
@@ -293,14 +291,11 @@ Shortcuts:
       writeOutput(`<pre>${helpText}</pre>`);
       renderPrompt();
     },
-    onboarding: async () => {
-      await startOnboarding();
-    },
     resumes: showResumes,
     ls: listFiles,
     cat: displayFile,
     download: downloadFile,
-    cd: changeDirectory,
+    cd: (dirname) => changeDirectory(dirname),
     clear: clearTerminal,
   };
 
@@ -310,7 +305,7 @@ Shortcuts:
   function initializeTerminal() {
     terminal.innerHTML = "";
     writeOutput(
-      "Welcome to my Terminal Portfolio! Type 'help' to get started or 'onboarding' for a guided walkthrough."
+      "Welcome to my Terminal Portfolio! Type 'help' to get started."
     );
     renderPrompt();
   }
