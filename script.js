@@ -7,7 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const directories = {
     home: {
-      "README.md": "Welcome to your home directory!",
+      projects: {
+        "projects.md": "./assets/projects/projects.md",
+      },
       resume: {
         "master-resume.md": "./assets/resumes/master-resume.md",
         "devops-engineer-resume.md": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
@@ -88,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "Welcome to the onboarding walkthrough!",
       "1. Type 'ls' to list the files and directories available.",
       "2. Navigate to a directory using 'cd <directory_name>'. For example, try 'cd resume'.",
-      "3. View a file's content using 'cat <file_name>'. For example, 'cat README.md'.",
+      "3. View a file's content using 'cat <file_name>'. For example, 'cat projects.md'.",
       "4. Download a file with 'download <file_name>'. For example, 'download master-resume.pdf'.",
       "That's it! You're ready to explore the portfolio. Type 'help' anytime for a list of commands.",
     ];
@@ -109,30 +111,30 @@ document.addEventListener("DOMContentLoaded", () => {
     writeOutput(entries.length ? entries.join("\n") : "No files or directories.");
     renderPrompt();
   }
-
   async function displayFile(filename) {
     if (!filename) {
       writeOutput("Usage: cat <filename>");
       renderPrompt();
       return;
     }
-
+  
     if (currentDirectory[filename]) {
       try {
         const url = currentDirectory[filename];
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Failed to fetch '${filename}'`);
-
+  
         const fileExtension = filename.split(".").pop();
-
+  
         if (fileExtension === "md") {
           const content = await response.text();
-          const plainTextContent = content
-            .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold syntax (**bold** -> bold)
-            .replace(/---/g, "") // Remove horizontal rules
-            .replace(/\[(.*?)\]\((.*?)\)/g, "$1: $2"); // Convert links
-
-          writeOutput(`<pre>${plainTextContent}</pre>`);
+          const htmlContent = content
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold (**text** -> <strong>text</strong>)
+            .replace(/---/g, "<hr>") // Horizontal rule (--- -> <hr>)
+            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>') // Links ([text](url) -> <a href="url">text</a>)
+            .replace(/\n/g, "<br>"); // Newlines to HTML line breaks
+  
+          writeOutput(`<div class="markdown">${htmlContent}</div>`);
         } else {
           writeOutput(`Cannot display '${filename}'. Use 'download ${filename}' to save it locally.`);
         }
@@ -144,6 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     renderPrompt();
   }
+  
 
   function downloadFile(filename) {
     if (!filename) {

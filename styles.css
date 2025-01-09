@@ -51,11 +51,16 @@ body {
   word-wrap: break-word;
 }
 
-
 /* Links in terminal style */
-#terminal pre a {
-  color: cyan; /* Cyan for links */
-  text-decoration: none; /* No underlines for links */
+#terminal .markdown a {
+  color: cyan; /* Cyan color for links */
+  text-decoration: none; /* No underlines by default */
+  font-weight: bold; /* Bold for emphasis */
+}
+
+#terminal .markdown a:hover {
+  text-decoration: underline; /* Underline on hover */
+  color: lightblue; /* Light blue on hover */
 }
 
 /* Scrollbar Styling for Terminal */
