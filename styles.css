@@ -57,35 +57,7 @@ body {
   line-height: 1.5;
 }
 
-#terminal .markdown h1 {
-  font-size: 18px;
-  color: #00ff00; /* Green for H1 headings */
-}
-
-#terminal .markdown h2 {
-  font-size: 16px;
-  color: #00ccff; /* Cyan for H2 headings */
-}
-
-#terminal .markdown h3 {
-  font-size: 14px;
-  color: #cccccc; /* Light gray for H3 headings */
-}
-
-#terminal .markdown strong {
-  font-size: 14px;
-  font-weight: bold;
-  color: #ffffff;
-}
-
-#terminal .markdown em {
-  font-size: 14px;
-  font-style: italic;
-  color: #ffa500; /* Orange for emphasis */
-}
-
 #terminal .markdown a {
-  font-size: 14px;
   color: cyan;
   text-decoration: none;
 }
@@ -95,33 +67,14 @@ body {
   color: lightblue;
 }
 
-/* Resumes Command Styling */
-#terminal .output-line ul {
-  list-style-type: disc; /* Use bullet points */
-  padding-left: 20px;
-  margin-top: 10px;
+/* Resumes List Styling */
+ul {
+  list-style-type: none;
+  padding-left: 0;
 }
 
-#terminal .output-line ul li {
-  margin-bottom: 5px; /* Add spacing between list items */
-}
-
-#terminal .output-line ul li a {
-  text-decoration: none;
-  font-weight: bold;
-}
-
-#terminal .output-line ul li a.md-link {
-  color: cyan; /* Cyan for Markdown links */
-}
-
-#terminal .output-line ul li a.pdf-link {
-  color: limegreen; /* Lime green for PDF links */
-}
-
-#terminal .output-line ul li a:hover {
-  text-decoration: underline; /* Underline on hover */
-  color: lightblue;
+ul li {
+  margin-bottom: 5px;
 }
 
 /* Scrollbar Styling for Terminal */
