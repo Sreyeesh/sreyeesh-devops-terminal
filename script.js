@@ -9,23 +9,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const terminal = document.getElementById("terminal");
   const promptText = "user@portfolio:~$";
 
-  /**
-   * Simple in-memory filesystem
-   */
-  const directories = {
-    home: {
-      projects: {
-        "projects.md": "./assets/projects/projects.md",
-      },
-      resumes: {
-        "master-resume.md": "./assets/resumes/master-resume.md",
-        "master-resume.pdf": "./assets/resumes/master-resume.pdf",
-        "Sreyeesh_Garimella_DevOps_Engineer.md": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.md",
-        "Sreyeesh_Garimella_DevOps_Engineer.pdf": "./assets/resumes/Sreyeesh_Garimella_DevOps_Engineer.pdf",
-      },
-      "readme.txt": "Welcome to your home directory!",
+/**
+ * Simple in-memory filesystem
+ */
+const directories = {
+  home: {
+    projects: {
+      "projects.md": "./assets/projects/projects.md",
     },
-  };
+    resumes: {
+      "Sreyeesh_Garimella_Master_Resume_FullStack_DevOps.md": "./assets/resumes/Sreyeesh_Garimella_Master_Resume_FullStack_DevOps.md",
+      "Sreyeesh_Garimella_Master_Resume_FullStack_DevOps.pdf": "./assets/resumes/Sreyeesh_Garimella_Master_Resume_FullStack_DevOps.pdf",
+    },
+    "readme.txt": "Welcome to your home directory!",
+  },
+};
+
 
   // Keep track of our current directory and path
   let currentDirectory = directories.home;
